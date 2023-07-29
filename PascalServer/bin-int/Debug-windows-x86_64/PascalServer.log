@@ -1,6 +1,0 @@
-﻿  pspch.cpp
-  Application.cpp
-  Log.cpp
-  Test.cpp
-D:\Projects\github\Pascal\PascalServer\src\Core\Application.cpp(26,26): warning C4244: '=': conversion from 'SOCKET' to 'ps_socket', possible loss of data
-  PascalServer.vcxproj -> D:\Projects\github\Pascal\PascalServer\bin\Debug-windows-x86_64\PascalServer.lib

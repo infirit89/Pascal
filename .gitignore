@@ -26,6 +26,10 @@
 *.a
 *.lib
 
+# Debugger Symbols
+*.idb
+*.pdb
+
 # Executables
 *.exe
 *.out
@@ -43,3 +47,7 @@
 
 # Premake Folder
 premake/
+
+# Build Directories
+bin/
+bin-int/
