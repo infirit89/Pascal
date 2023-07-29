@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio items
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+.vs/
+
+# Jet Brains Items
+.idea/
+
+# Premake Folder
+premake/
