@@ -51,3 +51,6 @@ premake/
 # Build Directories
 bin/
 bin-int/
+
+# Logs
+logs/
