@@ -1,17 +1,15 @@
-#include "Core/Application.h"
 #include "Core/Log.h"
-#include "Core/Assert.h"
-#include "Server/HttpServer.h"
 
 using namespace Pascal;
 
 int main() 
 {
-	App();
+    Logger::Init();
 
-	HttpServer server(8080);
-
-	server.run();
+    PS_TRACE("test");
+    PS_INFO("test");
+    PS_WARN("test");
+    PS_ERROR("test");
 
 	return 0;
 }
