@@ -3,12 +3,27 @@ cmake_minimum_required(VERSION 3.25)
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 project(PascalServer CXX)
+
 set(CMAKE_CXX_STANDARD 17)
+
 add_library(PascalServer
-        PascalServer/src/Core/Log.cpp
-        PascalServer/src/Core/Log.h
-        PascalServer/src/pspch.h
-        PascalServer/src/pspch.cpp)
+        ${PROJECT_NAME}/src/Core/Log.cpp
+        ${PROJECT_NAME}/src/Core/Log.h
+        ${PROJECT_NAME}/src/Core/Assert.h
+        ${PROJECT_NAME}/src/Core/Base.h
+        ${PROJECT_NAME}/src/Core/Application.h
+        ${PROJECT_NAME}/src/Core/Application.cpp
+        ${PROJECT_NAME}/src/pspch.h
+        ${PROJECT_NAME}/src/pspch.cpp
+        ${PROJECT_NAME}/src/Server/HttpServer.h
+        ${PROJECT_NAME}/src/Server/HttpServer.cpp
+        ${PROJECT_NAME}/src/Core/Poller.h
+        ${PROJECT_NAME}/src/Core/Poller.cpp
+        ${PROJECT_NAME}/src/Platform/Pollers/EPollPoller.h
+        ${PROJECT_NAME}/src/Platform/Pollers/EPollPoller.cpp
+        ${PROJECT_NAME}/src/Core/EventDescription.h
+        ${PROJECT_NAME}/src/Core/EventDescription.cpp)
+
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
         PascalServer/vendor/spdlog/include)
@@ -36,9 +51,14 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
 endif ()
 
 project(Sandbox CXX)
+
 set(CMAKE_CXX_STANDARD 17)
-add_executable(Sandbox Sandbox/src/main.cpp)
+
+add_executable(Sandbox 
+    Sandbox/src/main.cpp)
+
 add_dependencies(Sandbox PascalServer)
+
 target_include_directories(Sandbox PRIVATE
         Sandbox/src
         PascalServer/src

@@ -20,10 +20,6 @@ namespace Pascal
         Application();
         ~Application();
 
-        void CreateServer();
-
-        ps_socket m_ServerSocket = 0;
-        //std::string m_IPAddress;
     };
 
     

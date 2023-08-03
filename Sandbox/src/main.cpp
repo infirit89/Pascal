@@ -1,15 +1,22 @@
 #include "Core/Log.h"
+#include "Core/Application.h"
+
+#include "Core/Assert.h"
+#include "Server/HttpServer.h"
+
+#include <thread>
 
 using namespace Pascal;
 
 int main() 
 {
-    Logger::Init();
+    (void)App();
 
-    PS_TRACE("test");
-    PS_INFO("test");
-    PS_WARN("test");
-    PS_ERROR("test");
+    PS_TRACE(std::this_thread::get_id());
+
+    HttpServer server;
+
+    server.Run();
 
 	return 0;
 }
