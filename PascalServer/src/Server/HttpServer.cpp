@@ -46,7 +46,7 @@ namespace Pascal
 
     HttpServer::~HttpServer() 
     {
-        CloseListenerSocket(); 
+        CloseListenerSocket();
     }  
 
     void HttpServer::CloseListenerSocket() 
@@ -77,7 +77,7 @@ namespace Pascal
         // std::vector<epoll_event> events;
         // events.resize(10);
 
-        while(true) 
+        while(true)
         {
             std::vector<EventDescription*> events;
 

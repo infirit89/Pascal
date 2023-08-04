@@ -22,7 +22,11 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Platform/Pollers/EPollPoller.h
         ${PROJECT_NAME}/src/Platform/Pollers/EPollPoller.cpp
         ${PROJECT_NAME}/src/Core/EventDescription.h
-        ${PROJECT_NAME}/src/Core/EventDescription.cpp)
+        ${PROJECT_NAME}/src/Core/EventDescription.cpp
+        ${PROJECT_NAME}/src/Network/Socket.h
+        ${PROJECT_NAME}/src/Network/Socket.cpp
+        ${PROJECT_NAME}/src/Network/INetAddress.h
+        ${PROJECT_NAME}/src/Network/INetAddress.cpp)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
@@ -55,7 +59,9 @@ project(Sandbox CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(Sandbox 
-    Sandbox/src/main.cpp)
+    Sandbox/src/main.cpp
+    Sandbox/src/Tests/TestUtils.h
+    Sandbox/src/Tests/INetAddressTest.h)
 
 add_dependencies(Sandbox PascalServer)
 

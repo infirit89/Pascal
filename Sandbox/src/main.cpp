@@ -6,17 +6,15 @@
 
 #include <thread>
 
+#include "Tests/INetAddressTest.h"
+
 using namespace Pascal;
 
 int main() 
 {
     (void)App();
 
-    PS_TRACE(std::this_thread::get_id());
-
-    HttpServer server;
-
-    server.Run();
+    UnitTests::INetAddressTest1();
 
 	return 0;
 }
