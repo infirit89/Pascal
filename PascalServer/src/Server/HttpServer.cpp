@@ -4,44 +4,21 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 namespace Pascal 
 {
     const char* response = "HTTP/1.1 200 OK\r\n";
 
-    static void SetNonBlocking(ps_socket socket) 
-    {
-        int settings = fcntl(socket, F_GETFL);
-        settings = settings | O_NONBLOCK;
-
-        fcntl(socket, F_SETFL, settings);
-    }
-
-    HttpServer::HttpServer() 
+    HttpServer::HttpServer()
+        : m_ListenerSocket(Socket::CreateSocketNonBlocking(AF_INET))
     {
         m_Poller = Poller::CreatePoller();
 
-        m_ListenerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if(m_ListenerSocket == PS_INVALID_SOCKET)
-            PS_ERROR("i cum");
+        INetAddress address(8080);
+        m_ListenerSocket.Bind(address);
 
-        SetNonBlocking(m_ListenerSocket);
-
-        PS_ASSERT(m_ListenerSocket != PS_INVALID_SOCKET, "Couldn't create tcp socket");
-
-        sockaddr_in addr;
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(8080);
-
-        addr.sin_addr.s_addr = INADDR_ANY;
-
-        if(bind(m_ListenerSocket, (sockaddr*)&addr, sizeof(sockaddr)) == -1) 
-        {
-            CloseListenerSocket();
-            PS_ASSERT(false, "Couldn't bind socket");
-        }
-
-        m_EventDescription = CreateShared<EventDescription>(m_ListenerSocket);
+        m_EventDescription = CreateShared<EventDescription>(m_ListenerSocket.GetHandle());
     }
 
     HttpServer::~HttpServer() 
@@ -51,16 +28,11 @@ namespace Pascal
 
     void HttpServer::CloseListenerSocket() 
     {
-        close(m_ListenerSocket);
     }
 
     void HttpServer::Run() 
     {
-        if(listen(m_ListenerSocket, 16) == -1) 
-        {
-            CloseListenerSocket();
-            PS_ASSERT(false, "Couldn't bind socket");
-        }
+        m_ListenerSocket.Listen();
 
         m_EventDescription->EnableReading();
         m_Poller->AddEventDescription(m_EventDescription.get());
@@ -85,17 +57,25 @@ namespace Pascal
 
             for(auto event : events) 
             {
-                if(event->GetEventHandle() == m_ListenerSocket) 
+                if(event->GetEventHandle() == m_ListenerSocket.GetHandle()) 
                 {
-                    ps_socket client = accept(m_ListenerSocket, NULL, NULL);
+                    INetAddress clientAddress;
+                    Socket client = m_ListenerSocket.Accept(clientAddress);
 
-                    recv(client, &recvStr[0], recvStr.capacity(), 0);
+                    if(clientAddress.GetAddressFamily() == AF_INET)
+                        PS_TRACE("IPV4");
+                    else if(clientAddress.GetAddressFamily() == AF_INET6)
+                        PS_TRACE("IPV6");
+
+                    PS_TRACE("Client address: {0}", clientAddress.GetIp());
+
+                    recv(client.GetHandle(), &recvStr[0], recvStr.capacity(), 0);
 
                     PS_TRACE(recvStr);
 
-                    send(client, response, strlen(response), 0);
+                    send(client.GetHandle(), response, strlen(response), 0);
 
-                    close(client);
+                    // close(client.);
                 }
             }
 

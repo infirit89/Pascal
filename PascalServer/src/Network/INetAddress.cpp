@@ -8,6 +8,9 @@ namespace Pascal
 {
     // TODO: decide weather the address is ipv4 or ipv6 based on the address
 
+    INetAddress::INetAddress()
+        : m_IsIPV6(false) { }
+
     INetAddress::INetAddress(std::string address, uint16_t port, bool ipv6) 
         : m_IsIPV6(ipv6)
     {
@@ -55,6 +58,9 @@ namespace Pascal
             m_AddressIP4.sin_addr.s_addr = loopback ? INADDR_LOOPBACK : INADDR_ANY;
         }
     }
+
+    INetAddress::INetAddress(sockaddr_in6 addrin) 
+        : m_IsIPV6(true), m_AddressIP6(addrin) { }
 
     std::string INetAddress::GetIp() const 
     {   

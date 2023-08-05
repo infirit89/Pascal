@@ -14,7 +14,8 @@ int main()
 {
     (void)App();
 
-    UnitTests::INetAddressTest1();
+    HttpServer server;
+    server.Run();
 
 	return 0;
 }
