@@ -22,6 +22,9 @@ namespace Pascal
 
         static Socket CreateSocketNonBlocking(uint16_t family);
 
+        void SetReuseAddress(bool enable);
+        void SetReusePort(bool enable);
+
     private:
         ps_socket m_Handle;
     };

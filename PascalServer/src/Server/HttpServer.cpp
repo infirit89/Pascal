@@ -5,107 +5,59 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 namespace Pascal 
 {
     const char* response = "HTTP/1.1 200 OK\r\n";
 
-    HttpServer::HttpServer()
-        : m_ListenerSocket(Socket::CreateSocketNonBlocking(AF_INET))
+    HttpServer::HttpServer(const Shared<EventLoop>& eventLoop)
+        : m_ListenerSocket(Socket::CreateSocketNonBlocking(AF_INET)),
+          m_EventLoop(eventLoop)
     {
-        m_Poller = Poller::CreatePoller();
+        m_ListenerSocket.SetReuseAddress(true);
+        m_ListenerSocket.SetReusePort(true);
 
         INetAddress address(8080);
         m_ListenerSocket.Bind(address);
 
-        m_EventDescription = CreateShared<EventDescription>(m_ListenerSocket.GetHandle());
+        m_ListenerEvent = CreateShared<Event>(m_ListenerSocket.GetHandle());
+        m_ListenerEvent->SetReadCallback(std::bind(&HttpServer::ReadCallback, this));
+        m_RecvStr.resize(PS_HTTP_REQUEST_INITIAL_SIZE * 2);
+
+        m_ListenerSocket.Listen();
+
+        m_ListenerEvent->EnableReading();
+        m_EventLoop->AddEventDescription(m_ListenerEvent.get());
     }
 
-    HttpServer::~HttpServer() 
+    HttpServer::~HttpServer()
     {
-        CloseListenerSocket();
+        m_EventLoop.reset();
+        m_ListenerEvent.reset();
     }  
 
-    void HttpServer::CloseListenerSocket() 
+    void HttpServer::ReadCallback() 
     {
+        INetAddress clientAddress;
+        Socket client = m_ListenerSocket.Accept(clientAddress);
+
+        if(clientAddress.GetAddressFamily() == AF_INET)
+            PS_TRACE("IPV4");
+        else if(clientAddress.GetAddressFamily() == AF_INET6)
+            PS_TRACE("IPV6");
+
+        PS_TRACE("Client address: {0}", clientAddress.GetIp());
+
+        recv(client.GetHandle(), &m_RecvStr[0], m_RecvStr.capacity(), 0);
+
+        PS_TRACE(m_RecvStr);
+
+        send(client.GetHandle(), response, strlen(response), 0);
     }
 
     void HttpServer::Run() 
     {
-        m_ListenerSocket.Listen();
-
-        m_EventDescription->EnableReading();
-        m_Poller->AddEventDescription(m_EventDescription.get());
-
-        // epoll_event ev;
-        // ev.events = EPOLLIN | EPOLLET;
-        // ev.data.fd = m_ListenerSocket;
-
-        // epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, m_ListenerSocket, &ev);
-
-        std::string recvStr;
-        recvStr.resize(PS_HTTP_REQUEST_INITIAL_SIZE * 2);
-
-        // std::vector<epoll_event> events;
-        // events.resize(10);
-
-        while(true)
-        {
-            std::vector<EventDescription*> events;
-
-            m_Poller->Poll(events, -1);
-
-            for(auto event : events) 
-            {
-                if(event->GetEventHandle() == m_ListenerSocket.GetHandle()) 
-                {
-                    INetAddress clientAddress;
-                    Socket client = m_ListenerSocket.Accept(clientAddress);
-
-                    if(clientAddress.GetAddressFamily() == AF_INET)
-                        PS_TRACE("IPV4");
-                    else if(clientAddress.GetAddressFamily() == AF_INET6)
-                        PS_TRACE("IPV6");
-
-                    PS_TRACE("Client address: {0}", clientAddress.GetIp());
-
-                    recv(client.GetHandle(), &recvStr[0], recvStr.capacity(), 0);
-
-                    PS_TRACE(recvStr);
-
-                    send(client.GetHandle(), response, strlen(response), 0);
-
-                    // close(client.);
-                }
-            }
-
-            // int handles = epoll_wait(m_EpollFD, &events[0], events.capacity(), -1);
-
-            // for(auto event : events)
-            // {
-            //     if(event.data.fd == m_ListenerSocket) 
-            //     {
-            //         ps_socket client = accept(event.data.fd, NULL, NULL);
-            //         SetNonBlocking(client);
-
-            //         ev.events = EPOLLIN | EPOLLET;
-            //         ev.data.fd = client;
-
-            //         epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, client, &ev);
-            //     }
-            //     else 
-            //     {
-            //         ps_socket client = event.data.fd;
-            //         recv(client, &recvStr[0], recvStr.capacity(), 0);
-
-            //         PS_TRACE(recvStr);
-
-            //         send(client, response, strlen(response), 0);
-
-            //         epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, client, &event);
-            //         close(client);    
-            //     }
-            // }
-        }
+        m_EventLoop->Run();
     }
 }

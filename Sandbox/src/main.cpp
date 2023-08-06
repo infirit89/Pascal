@@ -5,6 +5,7 @@
 #include "Server/HttpServer.h"
 
 #include <thread>
+#include <iostream>
 
 #include "Tests/INetAddressTest.h"
 
@@ -12,10 +13,26 @@ using namespace Pascal;
 
 int main() 
 {
-    (void)App();
 
-    HttpServer server;
-    server.Run();
+    std::thread t([]() 
+    {
+        App().Run();
+    });
 
+    while(App().IsRunning()) 
+    {
+        std::string input;
+        std::cin >> input;
+
+        if(input == "exit") 
+        {
+            App().GetEventLoop()->QueuePostPollFunction([]() 
+            {
+                App().Quit();
+            });
+        }
+    }
+
+    t.join();
 	return 0;
 }

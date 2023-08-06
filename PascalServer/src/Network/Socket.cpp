@@ -22,6 +22,19 @@ namespace Pascal
         }
     }
 
+    void Socket::SetReuseAddress(bool enable) 
+    {
+        int temp = enable ? 1 : 0;
+
+        setsockopt(m_Handle, SOL_SOCKET, SO_REUSEADDR, &temp, sizeof(int));
+    }
+
+    void Socket::SetReusePort(bool enable) 
+    {
+        int temp = enable ? 1 : 0;
+        setsockopt(m_Handle, SOL_SOCKET, SO_REUSEPORT, &temp, sizeof(int));
+    }
+
     void Socket::Listen(int backlog)
     {
         PS_ASSERT(m_Handle != PS_INVALID_SOCKET, "Cant start listening on an invalid socket");

@@ -17,6 +17,11 @@ Internal Server Plan:
         onConnection:   a callback that gets called when a new connection comes in
         onReceive:      a callback that gets called when a message is received
 
+    EventLoop:
+        AddEvent:       adds an event description to the internal poller
+        RemoveEvent:    removes an event description from the internal poller
+        Run:            Polls and returns a list of active events
+
 
     Poller:
       Poll:             waits for events to occur
