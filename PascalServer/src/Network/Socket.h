@@ -22,8 +22,12 @@ namespace Pascal
 
         static Socket CreateSocketNonBlocking(uint16_t family);
 
+        bool IsValid() const { return m_Handle != PS_INVALID_SOCKET; }
+
         void SetReuseAddress(bool enable);
         void SetReusePort(bool enable);
+
+        void CloseWriting();
 
     private:
         ps_socket m_Handle;

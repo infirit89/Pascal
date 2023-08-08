@@ -1,10 +1,12 @@
 Internal Server Plan:
 
+    [Done]
     Socket:
         constructor:    createas a non blocking Socket
         bind:           binds the socket to an address and port specified by user
         listen:         starts listening on the socket
     
+    [Done]
     INetAddress:        utility class for translating from string address
 
     Connection:
@@ -17,13 +19,21 @@ Internal Server Plan:
         onConnection:   a callback that gets called when a new connection comes in
         onReceive:      a callback that gets called when a message is received
 
+    [Done]
     EventLoop:
         AddEvent:       adds an event description to the internal poller
         RemoveEvent:    removes an event description from the internal poller
         Run:            Polls and returns a list of active events
 
-
+    [Done]
     Poller:
       Poll:             waits for events to occur
       AddEvent:         registers a new handle that needs to be polled (AddEvent is a bad name; needs to change)
       RemoveEvent:      removes a handle that needs to be polled
+
+
+    Buffer:
+        Write:          writes data to the buffer
+        Read:           reads data from the buffer
+        Begin:          the beginig of the writable area
+

@@ -22,7 +22,7 @@ namespace Pascal
         m_ListenerSocket.Bind(address);
 
         m_ListenerEvent = CreateShared<Event>(m_ListenerSocket.GetHandle());
-        m_ListenerEvent->SetReadCallback(std::bind(&HttpServer::ReadCallback, this));
+        m_ListenerEvent->SetReadCallback(std::bind(&HttpServer::HandleAccept, this));
         m_RecvStr.resize(PS_HTTP_REQUEST_INITIAL_SIZE * 2);
 
         m_ListenerSocket.Listen();
@@ -35,25 +35,42 @@ namespace Pascal
     {
         m_EventLoop.reset();
         m_ListenerEvent.reset();
-    }  
+    }
 
-    void HttpServer::ReadCallback() 
+    void HttpServer::HandleAccept() 
     {
         INetAddress clientAddress;
-        Socket client = m_ListenerSocket.Accept(clientAddress);
+        ps_socket clientHandle = m_ListenerSocket.Accept(clientAddress);
 
-        if(clientAddress.GetAddressFamily() == AF_INET)
-            PS_TRACE("IPV4");
-        else if(clientAddress.GetAddressFamily() == AF_INET6)
-            PS_TRACE("IPV6");
+        PS_ASSERT(clientHandle != PS_INVALID_SOCKET, "Couldn't accept a valid client");
 
-        PS_TRACE("Client address: {0}", clientAddress.GetIp());
+        std::shared_ptr<Connection> connection = std::make_shared<Connection>(m_EventLoop, clientHandle);
 
-        recv(client.GetHandle(), &m_RecvStr[0], m_RecvStr.capacity(), 0);
+        connection->SetReadCallback(std::bind(&HttpServer::HandlePeerRead, this, std::placeholders::_1, std::placeholders::_2));
+        connection->SetCloseCallback(std::bind(&HttpServer::HandlePeerClose, this, std::placeholders::_1));
 
-        PS_TRACE(m_RecvStr);
+        m_Connections.insert(connection);
 
-        send(client.GetHandle(), response, strlen(response), 0);
+        connection->EstablishConnection();
+    }
+
+    void HttpServer::HandlePeerRead(Shared<Connection> connection, const Buffer& buffer) 
+    {
+        std::string temp = buffer.ReadAll();
+
+        PS_TRACE(temp);
+
+        connection->Send(response, strlen(response));
+    }
+    
+    void HttpServer::HandlePeerWrite(Shared<Connection> connection) 
+    {
+        // PS_TRACE("i shael cum now!");
+    }
+
+    void HttpServer::HandlePeerClose(Shared<Connection> connection) 
+    {
+        m_Connections.erase(connection);
     }
 
     void HttpServer::Run() 

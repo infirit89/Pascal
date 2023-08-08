@@ -39,7 +39,7 @@ namespace Pascal
             Event* eventDescription = static_cast<Event*>(event.data.ptr);
             int eventHandle = eventDescription->GetEventHandle();
 
-            PS_ASSERT(m_ChannelMap.find(eventHandle) == m_ChannelMap.end(), "Event description doesn't exist");
+            PS_ASSERT(m_ChannelMap.find(eventHandle) != m_ChannelMap.end(), "Event description doesn't exist");
 
             eventDescription->SetReturnedEventMask(event.events);
             eventDescriptions.push_back(eventDescription);
@@ -57,6 +57,8 @@ namespace Pascal
         }
 
         UpdateEventDescription(EPOLL_CTL_ADD, eventDescription);
+
+        m_ChannelMap.emplace(eventHandle, eventDescription);
     }
 
     void EPollPoller::UpdateEventDescription(int operation, Event* eventDescription) 
@@ -72,9 +74,11 @@ namespace Pascal
     {
         int eventHandle = eventDesription->GetEventHandle();
 
-        if(m_ChannelMap.find(eventHandle) != m_ChannelMap.end())
+        if(m_ChannelMap.find(eventHandle) == m_ChannelMap.end())
             return;
 
         UpdateEventDescription(EPOLL_CTL_DEL, eventDesription);
+
+        m_ChannelMap.erase(eventHandle);
     }
 }

@@ -22,6 +22,16 @@ namespace Pascal
             m_CloseCallback = callback;
         }
 
+        void SetErrorCallback(const EventCallback& callback) 
+        {
+            m_ErrorCallback = callback;
+        }
+
+        void SetWriteCallback(const EventCallback& callback) 
+        {
+            m_WriteCallback = callback;
+        }
+
         int GetEventHandle() const { return m_EventHandle; } 
 
         int GetEventMask() const { return m_EventMask; }

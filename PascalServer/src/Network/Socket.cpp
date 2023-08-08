@@ -13,7 +13,7 @@ namespace Pascal
     Socket::Socket(ps_socket socket)
         : m_Handle(socket) { }
 
-    Socket::~Socket() 
+    Socket::~Socket()
     {
         if(m_Handle != PS_INVALID_SOCKET)
         {
@@ -27,6 +27,11 @@ namespace Pascal
         int temp = enable ? 1 : 0;
 
         setsockopt(m_Handle, SOL_SOCKET, SO_REUSEADDR, &temp, sizeof(int));
+    }
+
+    void Socket::CloseWriting() 
+    {
+        shutdown(m_Handle, SHUT_WR);
     }
 
     void Socket::SetReusePort(bool enable) 
@@ -65,7 +70,7 @@ namespace Pascal
         sockaddr_in6 addrIn;
         socklen_t addrInSize = sizeof(sockaddr_in6);
 
-        ps_socket client = accept(m_Handle, (sockaddr*)&addrIn, &addrInSize);
+        ps_socket client = accept4(m_Handle, (sockaddr*)&addrIn, &addrInSize, SOCK_NONBLOCK | SOCK_CLOEXEC);
         
         PS_ASSERT(client != PS_INVALID_SOCKET, "Invalid client");
 
@@ -84,9 +89,9 @@ namespace Pascal
 
     Socket Socket::CreateSocketNonBlocking(uint16_t family) 
     {
-        ps_socket socket = ::socket(family, SOCK_STREAM, IPPROTO_TCP);
+        ps_socket socket = ::socket(family, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
         PS_ASSERT(socket != PS_INVALID_SOCKET, "Couldn't create tcp socket");
-        SetNonBlocking(socket);
+        // SetNonBlocking(socket);
         return socket;
     }
 }

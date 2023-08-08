@@ -29,7 +29,7 @@ namespace Pascal
                 m_CloseCallback();
         }
 
-        if(m_ReturnedEventMask & (POLLIN | POLLPRI)) 
+        if(m_ReturnedEventMask & (POLLIN | POLLPRI | POLLRDHUP)) 
         {
             if(m_ReadCallback)
                 m_ReadCallback();

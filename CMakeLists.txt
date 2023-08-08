@@ -28,7 +28,11 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Network/INetAddress.h
         ${PROJECT_NAME}/src/Network/INetAddress.cpp
         ${PROJECT_NAME}/src/Core/EventLoop.h
-        ${PROJECT_NAME}/src/Core/EventLoop.cpp)
+        ${PROJECT_NAME}/src/Core/EventLoop.cpp
+        ${PROJECT_NAME}/src/Server/Connection.h
+        ${PROJECT_NAME}/src/Server/Connection.cpp
+        ${PROJECT_NAME}/src/Core/Buffer.h
+        ${PROJECT_NAME}/src/Core/Buffer.cpp)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src

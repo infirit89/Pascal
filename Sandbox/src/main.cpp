@@ -9,10 +9,13 @@
 
 #include "Tests/INetAddressTest.h"
 
+#include <vector>
+
 using namespace Pascal;
 
 int main() 
 {
+    (void)App();
 
     std::thread t([]() 
     {
