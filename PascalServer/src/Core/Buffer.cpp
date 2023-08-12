@@ -13,6 +13,17 @@ namespace Pascal
         m_Size = 0;
     }
 
+    Buffer::Buffer(const std::string& data) 
+        : m_Capacity(data.size() + 1), m_Size(data.size() + 1)
+    {
+        m_Data = new char[m_Capacity];
+
+        for(uint32_t i = 0; i < data.size(); ++i)
+            m_Data[i] = data[i];
+
+        m_Data[data.size()] = '\0';
+    }
+    
     Buffer::~Buffer() 
     {
         delete[] m_Data;

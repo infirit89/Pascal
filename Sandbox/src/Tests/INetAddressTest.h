@@ -44,8 +44,8 @@ namespace UnitTests
         for (int i = 0; i < testCount; ++i)
         {
             Pascal::INetAddress inetAddress = inetAddresses.at(i);
-            UnitTestUtils::AssertIfNotEqual(inetAddress.GetIp(), addresses[i]);
-            UnitTestUtils::AssertIfNotEqual(inetAddress.GetPort(), ports[i]);
+            Utils::AssertIfNotEqual(inetAddress.GetIp(), addresses[i]);
+            Utils::AssertIfNotEqual(inetAddress.GetPort(), ports[i]);
         }
     }
 
@@ -83,8 +83,8 @@ namespace UnitTests
         for (int i = 0; i < testCount; ++i)
         {
             Pascal::INetAddress inetAddress = inetAddresses.at(i);
-            UnitTestUtils::AssertIfNotEqual(inetAddress.GetIp(), addresses[i]);
-            UnitTestUtils::AssertIfNotEqual(inetAddress.GetPort(), ports[i]);
+            Utils::AssertIfNotEqual(inetAddress.GetIp(), addresses[i]);
+            Utils::AssertIfNotEqual(inetAddress.GetPort(), ports[i]);
         }
     }
 }

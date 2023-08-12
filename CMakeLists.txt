@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22.1)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
@@ -32,7 +32,17 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Server/Connection.h
         ${PROJECT_NAME}/src/Server/Connection.cpp
         ${PROJECT_NAME}/src/Core/Buffer.h
-        ${PROJECT_NAME}/src/Core/Buffer.cpp)
+        ${PROJECT_NAME}/src/Core/Buffer.cpp
+        ${PROJECT_NAME}/src/Server/HttpUtils.h
+        ${PROJECT_NAME}/src/Server/HttpUtils.cpp
+        ${PROJECT_NAME}/src/Server/HttpRequest.h
+        ${PROJECT_NAME}/src/Server/HttpRequestParser.h
+        ${PROJECT_NAME}/src/Server/HttpRequestParser.cpp
+        ${PROJECT_NAME}/src/Server/Router.h
+        ${PROJECT_NAME}/src/Server/Router.cpp
+        ${PROJECT_NAME}/src/Server/HttpResponse.h
+        ${PROJECT_NAME}/src/Server/HttpResponseBuilder.h
+        ${PROJECT_NAME}/src/Server/HttpResponseBuilder.cpp)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
@@ -67,7 +77,11 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(Sandbox 
     Sandbox/src/main.cpp
     Sandbox/src/Tests/TestUtils.h
-    Sandbox/src/Tests/INetAddressTest.h)
+    Sandbox/src/Tests/TestUtils.cpp
+    Sandbox/src/Tests/INetAddressTest.h
+    Sandbox/src/Tests/HttpRequestParserTest.h
+    Sandbox/src/Tests/HttpResponseBuilderTest.h
+    Sandbox/src/Tests/HttpResponseBuilderTest.cpp)
 
 add_dependencies(Sandbox PascalServer)
 

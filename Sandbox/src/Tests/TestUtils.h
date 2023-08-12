@@ -6,7 +6,7 @@
 
 namespace UnitTests 
 {
-    class UnitTestUtils 
+    class Utils 
     {
     public:
         template<typename T>
@@ -22,7 +22,4 @@ namespace UnitTests
     private:
         static int s_TestIndex;
     };
-
-    int UnitTestUtils::s_TestIndex = 1;
-
 }

@@ -46,15 +46,15 @@ namespace Pascal
 
         std::shared_ptr<Connection> connection = std::make_shared<Connection>(m_EventLoop, clientHandle);
 
-        connection->SetReadCallback(std::bind(&HttpServer::HandlePeerRead, this, std::placeholders::_1, std::placeholders::_2));
-        connection->SetCloseCallback(std::bind(&HttpServer::HandlePeerClose, this, std::placeholders::_1));
+        connection->SetReadCallback(std::bind(&HttpServer::HandleReadPeer, this, std::placeholders::_1, std::placeholders::_2));
+        connection->SetCloseCallback(std::bind(&HttpServer::HandleClosePeer, this, std::placeholders::_1));
 
         m_Connections.insert(connection);
 
         connection->EstablishConnection();
     }
 
-    void HttpServer::HandlePeerRead(Shared<Connection> connection, const Buffer& buffer) 
+    void HttpServer::HandleReadPeer(Shared<Connection> connection, const Buffer& buffer) 
     {
         std::string temp = buffer.ReadAll();
 
@@ -63,12 +63,12 @@ namespace Pascal
         connection->Send(response, strlen(response));
     }
     
-    void HttpServer::HandlePeerWrite(Shared<Connection> connection) 
+    void HttpServer::HandleWritePeer(Shared<Connection> connection) 
     {
         // PS_TRACE("i shael cum now!");
     }
 
-    void HttpServer::HandlePeerClose(Shared<Connection> connection) 
+    void HttpServer::HandleClosePeer(Shared<Connection> connection) 
     {
         m_Connections.erase(connection);
     }

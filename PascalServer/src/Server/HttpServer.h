@@ -22,9 +22,9 @@ namespace Pascal
         void Run();
         
     private:
-        void HandlePeerRead(Shared<Connection> connection, const Buffer& buffer);
-        void HandlePeerWrite(Shared<Connection> connection);
-        void HandlePeerClose(Shared<Connection> connection);
+        void HandleReadPeer(Shared<Connection> connection, const Buffer& buffer);
+        void HandleWritePeer(Shared<Connection> connection);
+        void HandleClosePeer(Shared<Connection> connection);
 
         void HandleAccept();
         

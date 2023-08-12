@@ -8,6 +8,8 @@
 #include <iostream>
 
 #include "Tests/INetAddressTest.h"
+#include "Tests/HttpRequestParserTest.h"
+#include "Tests/HttpResponseBuilderTest.h"
 
 #include <vector>
 
@@ -16,26 +18,27 @@ using namespace Pascal;
 int main() 
 {
     (void)App();
+    UnitTests::HttpResponseBuilderTest1();
 
-    std::thread t([]() 
-    {
-        App().Run();
-    });
+    // std::thread t([]() 
+    // {`
+    //     App().Run();
+    // });
 
-    while(App().IsRunning()) 
-    {
-        std::string input;
-        std::cin >> input;
+    // while(App().IsRunning()) 
+    // {
+    //     std::string input;
+    //     std::cin >> input;
 
-        if(input == "exit") 
-        {
-            App().GetEventLoop()->QueuePostPollFunction([]() 
-            {
-                App().Quit();
-            });
-        }
-    }
+    //     if(input == "exit") 
+    //     {
+    //         App().GetEventLoop()->QueuePostPollFunction([]() 
+    //         {
+    //             App().Quit();
+    //         });
+    //     }
+    // }
 
-    t.join();
+    // t.join();
 	return 0;
 }
