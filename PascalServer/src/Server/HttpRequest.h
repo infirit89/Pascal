@@ -7,19 +7,20 @@
 
 namespace Pascal 
 {
-    class HttpRequest 
+    struct HttpRequest 
     {
-    public:
         HttpRequest() {}
         ~HttpRequest() {}
 
-        HttpRequestMethod GetMethod() const { return m_Method; }
+        HttpMethod GetMethod() const { return m_Method; }
         const std::string& GetTarget() const { return m_Target; }
-        const std::string& GetVersion() const { return m_VersionString; }
+        const std::string& GetVersionString() const { return m_VersionString; }
+        HttpVersion GetVersion() const { return m_Version; }
         const HeaderMap& GetHeaders() const { return m_Headers; }
         
     private:
-        HttpRequestMethod m_Method;
+        HttpVersion m_Version;
+        HttpMethod m_Method;
         std::string m_Target;
         std::string m_VersionString;
         HeaderMap m_Headers;
@@ -46,7 +47,7 @@ struct fmt::formatter<Pascal::Shared<Pascal::HttpRequest>>
         format_to(ctx.out(), "\nRequest:\n");
         format_to(ctx.out(), "\tMethod: {}\n", Pascal::HttpRequestMethodToString(request->GetMethod()));
         format_to(ctx.out(), "\tTarget: {}\n", request->GetTarget());
-        format_to(ctx.out(), "\tVersion: {}\n", request->GetVersion());
+        format_to(ctx.out(), "\tVersion: {}\n", request->GetVersionString());
 
         format_to(ctx.out(), "\tHeaders:\n");
         for (const auto& [header, headerData] : request->GetHeaders())

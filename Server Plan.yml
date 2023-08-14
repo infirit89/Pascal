@@ -9,10 +9,12 @@ Internal Server Plan:
     [Done]
     INetAddress:        utility class for translating from string address
 
+    [Done]
     Connection:
         read:           read from a connection
         write:          write to a connection
 
+    [Done]
     Server:
         constructor:    creates a listener socket
         start:          starts listening
@@ -31,9 +33,25 @@ Internal Server Plan:
       AddEvent:         registers a new handle that needs to be polled (AddEvent is a bad name; needs to change)
       RemoveEvent:      removes a handle that needs to be polled
 
-
+    [Done]
     Buffer:
         Write:          writes data to the buffer
         Read:           reads data from the buffer
         Begin:          the beginig of the writable area
+
+    [Done]
+    HttpRequest:            a class containing the processed request data
+
+    [Kinda (still have to do error handling)]
+    HttpRequestParser:      parses a raw request data to an http request object
+
+    [Done]
+    HttpResponse:           a class that represents a response
+
+    [Done]
+    HttpResponseBuilder:    builds a raw response from a response object
+
+    Router (Basic):         maps a  request target to a callback (won't support query parameters)
+
+
 

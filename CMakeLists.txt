@@ -80,6 +80,7 @@ add_executable(Sandbox
     Sandbox/src/Tests/TestUtils.cpp
     Sandbox/src/Tests/INetAddressTest.h
     Sandbox/src/Tests/HttpRequestParserTest.h
+    Sandbox/src/Tests/HttpRequestParserTest.cpp
     Sandbox/src/Tests/HttpResponseBuilderTest.h
     Sandbox/src/Tests/HttpResponseBuilderTest.cpp)
 

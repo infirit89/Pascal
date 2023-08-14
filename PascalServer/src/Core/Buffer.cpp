@@ -45,11 +45,21 @@ namespace Pascal
 
     void Buffer::Write(char* data, uint32_t size) 
     {
-        if(size + m_Size >= m_Capacity)
-            Reserve(m_Size + size);
+        while(size + m_Size >= m_Capacity)
+            Reserve(m_Capacity * 2);
 
         memcpy(GetWritable(), data, size);
         m_Size += size;
+    }
+
+    void Buffer::Write(const std::string& data) 
+    {
+        while(data.size() + m_Size >= m_Capacity)
+            Reserve(m_Capacity * 2);
+
+        memcpy(GetWritable(), data.c_str(), data.size());
+        m_Size += data.size();
+        m_Data[m_Size] = '\0';
     }
 
     std::string Buffer::Read(uint32_t size, uint32_t offset) 

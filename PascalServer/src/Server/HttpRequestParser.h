@@ -10,6 +10,20 @@ namespace Pascal
     class HttpRequestParser 
     {
     public:
-        static Shared<HttpRequest> ParseRequest(const Buffer& messageBuffer);
+        enum class Status 
+        {
+            Success = 0,
+            UnexpectedMethod,
+            URITooLong,
+            IllformedRequest,
+            HttpVersionNotSupported
+        };
+
+        static Shared<HttpRequest> ParseRequest(const Buffer& messageBuffer, Status& status);
+        static uint32_t GetMaxURILength() { return s_MaxUriLength; }
+        static void SetMaxURILength(uint32_t maxUriLength) { s_MaxUriLength = maxUriLength; }
+
+    private:
+        static uint32_t s_MaxUriLength;
     };
 }

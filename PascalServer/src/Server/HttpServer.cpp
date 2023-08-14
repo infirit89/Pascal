@@ -1,11 +1,10 @@
 #include "pspch.h"
 #include "HttpServer.h"
 
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <signal.h>
+#include "HttpRequestParser.h"
+#include "HttpResponseBuilder.h"
+
+#include <iostream>
 
 namespace Pascal 
 {
@@ -56,13 +55,44 @@ namespace Pascal
 
     void HttpServer::HandleReadPeer(Shared<Connection> connection, const Buffer& buffer) 
     {
-        std::string temp = buffer.ReadAll();
+        HttpRequestParser::Status status;
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(buffer, status);
 
-        PS_TRACE(temp);
+        Shared<HttpResponse> response;
 
-        connection->Send(response, strlen(response));
+        switch(status) 
+        {
+        case HttpRequestParser::Status::Success:
+            response = m_OnHttpRequest(request);
+            break;
+        case HttpRequestParser::Status::IllformedRequest:
+            response = CreateShared<HttpResponse>(HttpStatus::BadRequest);
+            break;
+        case HttpRequestParser::Status::HttpVersionNotSupported:
+            response = CreateShared<HttpResponse>(HttpStatus::VersionNotSupported);
+            break;
+        case HttpRequestParser::Status::UnexpectedMethod:
+            response = CreateShared<HttpResponse>(HttpStatus::MethodNotAllowed);
+            break;
+        case HttpRequestParser::Status::URITooLong:
+            response = CreateShared<HttpResponse>(HttpStatus::UriTooLong);
+            break;
+        }
+
+        SendResponse(connection, response);
     }
     
+    void HttpServer::SendResponse(const Shared<Connection>& connection, const Shared<HttpResponse>& response) 
+    {
+        std::string responseData = HttpResponseBuilder::BuildResponse(response);
+
+        std::cout << responseData << '\n';
+        
+        // PS_TRACE(responseData);
+
+        connection->Send(responseData);
+    }
+
     void HttpServer::HandleWritePeer(Shared<Connection> connection) 
     {
         // PS_TRACE("i shael cum now!");

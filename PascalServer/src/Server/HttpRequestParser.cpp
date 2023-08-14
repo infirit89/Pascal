@@ -3,65 +3,117 @@
 
 namespace Pascal 
 {
-    Shared<HttpRequest> HttpRequestParser::ParseRequest(const Buffer& messageBuffer) 
+    uint32_t HttpRequestParser::s_MaxUriLength = 9_kb;
+
+    Shared<HttpRequest> HttpRequestParser::ParseRequest(const Buffer& messageBuffer, Status& status) 
     {
         // TODO: error handling
 
         std::string message = messageBuffer.GetData();
 
         size_t methodSeperator = message.find(' ');
-        if(methodSeperator == std::string::npos)
+        if(methodSeperator == std::string::npos) 
+        {
+            status = Status::IllformedRequest;
             return nullptr;
+        }
         
         std::string method = message.substr(0, methodSeperator);
 
-        HttpRequestMethod requestMethod = HttpRequestMethod::None;
+        HttpMethod requestMethod = HttpMethod::None;
 
         // TODO: add all the other request methods
         if(method == "GET")
-            requestMethod = HttpRequestMethod::Get;
+            requestMethod = HttpMethod::Get;
         else if(method == "POST")
-            requestMethod = HttpRequestMethod::Post;
+            requestMethod = HttpMethod::Post;
         else if(method == "PUT")
-            requestMethod = HttpRequestMethod::Put;
+            requestMethod = HttpMethod::Put;
         else if(method == "DELETE")
-            requestMethod = HttpRequestMethod::Delete;
-        else
+            requestMethod = HttpMethod::Delete;
+        else 
+        {
+            status = Status::UnexpectedMethod;
             return nullptr;
+        }
 
         size_t targetSeperator = message.find(' ', methodSeperator + 1);
-        if(targetSeperator == std::string::npos)
+        if(targetSeperator == std::string::npos) 
+        {
+            status = Status::IllformedRequest;
             return nullptr;
+        }
         
         std::string target = message.substr(methodSeperator + 1, targetSeperator - methodSeperator - 1);
+        if(target.size() > s_MaxUriLength) 
+        {
+            status = Status::URITooLong;
+            return nullptr;
+        }
 
         const char* newLineToken = "\r\n";
         const size_t newLineTokenLen = strlen(newLineToken);
 
         size_t eol = message.find(newLineToken, targetSeperator + 1);
-        if(eol == std::string::npos)
+        if(eol == std::string::npos) 
+        {
+            status = Status::IllformedRequest;
             return nullptr;
+        }
 
-        std::string version = message.substr(targetSeperator + 1, eol - targetSeperator - 1);
+        std::string versionStr = message.substr(targetSeperator + 1, eol - targetSeperator - 1);
 
-        size_t spaceSeperator = message.find(' ', eol);
+        HttpVersion version = HttpVersion::Unknown;
+
+        if(versionStr == "HTTP/1.1")
+            version = HttpVersion::Http11;
+        else if(versionStr == "HTTP/1.0")
+            version = HttpVersion::Http10;
+        else 
+        {
+            status = Status::HttpVersionNotSupported;
+            return nullptr;
+        }
+
+        const char* headerToken = ":";
+        const size_t headerTokenLen = strlen(headerToken);
+
+        size_t valueSeperator = message.find(headerToken, eol);
 
         Shared<HttpRequest> request = CreateShared<HttpRequest>();
         request->m_Method = requestMethod;
         request->m_Target = target;
-        request->m_VersionString = version;
+        request->m_VersionString = versionStr;
+        request->m_Version = version;
 
-        while(spaceSeperator != std::string::npos) 
+        while(valueSeperator != std::string::npos)
         {
             std::string header = message.substr(eol + newLineTokenLen, 
-                                                spaceSeperator - eol - newLineTokenLen - 1);
-            eol = message.find(newLineToken, spaceSeperator);
-            std::string headerData = message.substr(spaceSeperator + 1, 
-                                                    eol - spaceSeperator - 1);
+                                                valueSeperator - eol - headerTokenLen - 1);
 
-            request->m_Headers.emplace(header, headerData);
-            spaceSeperator = message.find(' ', eol);
+            std::transform(header.begin(), header.end(), header.begin(), 
+                            [](unsigned char c) { return tolower(c); });
+
+
+            eol = message.find(newLineToken, valueSeperator);
+            if(eol == std::string::npos) 
+            {
+                status = Status::IllformedRequest;
+                return nullptr;
+            }
+
+            int offset = 0;
+            while(isspace(message[valueSeperator + headerTokenLen + offset]))
+                offset++;
+
+            std::string value = message.substr(valueSeperator + headerTokenLen + offset, 
+                                                    eol - valueSeperator - newLineTokenLen);
+
+            request->m_Headers.emplace(header, value);
+            valueSeperator = message.find(headerToken, eol);
         }
+
+        status = Status::Success;
 
         return request;
     }

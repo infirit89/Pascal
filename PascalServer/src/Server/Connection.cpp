@@ -34,6 +34,12 @@ namespace Pascal
     {
         // send(m_Socket.GetHandle(), data, size, 0);
         int writtenSize = write(m_Socket.GetHandle(), data, size);
+        if(writtenSize == -1) 
+        {
+            PS_ERROR(strerror(errno));
+        }
+        
+
         PS_TRACE("Data Size: {0}; Written Size: {1}", size, writtenSize);
 
         m_Socket.CloseWriting();
@@ -41,7 +47,7 @@ namespace Pascal
 
     void Connection::Send(const std::string& data) 
     {
-
+        Send(data.c_str(), data.size());
     }
 
     void Connection::HandleClose() 

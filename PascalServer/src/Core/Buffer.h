@@ -13,9 +13,24 @@ namespace Pascal
     public:
         Buffer(int capacity = 1);
         Buffer(const std::string& data);
+        Buffer(const Buffer& other);
 
         ~Buffer();
-        Buffer(const Buffer& other);
+
+        Buffer& operator=(const Buffer& other) 
+        {
+            m_Size = other.m_Size;
+            m_Capacity = other.m_Capacity;
+            if(m_Data)
+                delete[] m_Data;
+
+            m_Data = new char[m_Capacity];
+
+            for (uint32_t i = 0; i < m_Size; i++)
+                m_Data[i] = other.m_Data[i];
+
+            return *this;
+        }
 
         char* GetWritable()
         {
@@ -23,6 +38,7 @@ namespace Pascal
         }
 
         void Write(char* data, uint32_t size);
+        void Write(const std::string& data);
 
         template<typename... T>
         void WriteFormatted(fmt::format_string<T...> format, T&&... args) 
@@ -32,16 +48,16 @@ namespace Pascal
 
             if(result.size + GetSize() > GetCapacity()) 
             {
-                uint32_t tempCapacity = GetCapacity();
-                while(result.size + GetSize() > GetCapacity())
-                    tempCapacity *= 2;
+                while(result.size + m_Size > m_Capacity)
+                    m_Capacity *= 2;
                 
-                Reserve(tempCapacity);
+                Reserve(m_Capacity);
                 result = fmt::format_to_n(GetWritable(), GetCapacity() - GetSize(),
                             format, std::forward<T>(args)...);
             }
-            m_Size += result.size;
 
+            m_Size += result.size;
+            m_Data[m_Size] = '\0';
         }
 
         std::string Read(uint32_t size, uint32_t offset = 0);
