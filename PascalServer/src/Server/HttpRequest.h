@@ -66,10 +66,16 @@ struct fmt::formatter<Pascal::Shared<Pascal::HttpRequest>>
 	}
 
 	template<typename FormatContext>
-	auto format(const Pascal::Shared<Pascal::HttpRequest>& request, FormatContext& ctx) -> decltype(ctx.out())
+	auto format(
+            const Pascal::Shared<Pascal::HttpRequest>& request,
+            FormatContext& ctx) -> decltype(ctx.out())
 	{
         format_to(ctx.out(), "\nRequest:\n");
-        format_to(ctx.out(), "\tMethod: {}\n", Pascal::HttpRequestMethodToString(request->GetMethod()));
+        format_to(
+                ctx.out(),
+                "\tMethod: {}\n",
+                Pascal::HttpRequestMethodToString(request->GetMethod()));
+
         format_to(ctx.out(), "\tTarget: {}\n", request->GetTarget());
         format_to(ctx.out(), "\tVersion: {}\n", request->GetVersion());
 

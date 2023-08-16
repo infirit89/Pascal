@@ -20,10 +20,14 @@ namespace Pascal
             m_Paths.emplace_back(path);
         }
 
-        virtual Shared<HttpResponse> Route(const Shared<HttpRequest>& request) override;
+        virtual Shared<HttpResponse> Route(
+                                    const Shared<HttpRequest>& request) override;
 
-        void SetUseImplicitPage(bool useImplicitPage) { m_UseImplicitPage = useImplicitPage; }
-        void SetImplicitPage(const std::string& implicitPage) { m_ImplicitPage = implicitPage; }
+        void SetUseImplicitPage(bool useImplicitPage) 
+        { m_UseImplicitPage = useImplicitPage; }
+
+        void SetImplicitPage(const std::string& implicitPage) 
+        { m_ImplicitPage = implicitPage; }
 
     private:
         Shared<HttpResponse> CreateFileResponse(const std::filesystem::path& filePath);

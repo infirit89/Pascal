@@ -15,7 +15,10 @@ namespace Pascal
 		Pascal::Logger::Init();
 		m_EventLoop = CreateShared<EventLoop>();
 		m_Server = CreateUnique<HttpServer>(m_EventLoop);
-		m_Server->SetHttpMessageCallback(std::bind(&Application::OnHttpRequest, this, std::placeholders::_1));
+		m_Server->SetHttpMessageCallback(
+										std::bind(&Application::OnHttpRequest, 
+										this, std::placeholders::_1));
+										
 		m_HttpResponseRouter = CreateUnique<BasicRouter>();
 		m_StaticFileRouter = CreateUnique<StaticFileRouter>();
 		m_ErrorHandler = &DefaultErrorHandler;

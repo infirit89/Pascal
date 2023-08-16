@@ -167,7 +167,9 @@ struct fmt::formatter<Pascal::HttpMethod>
 	}
 
 	template<typename FormatContext>
-	auto format(const Pascal::HttpMethod& method, FormatContext& ctx) -> decltype(ctx.out())
+	auto format(
+            const Pascal::HttpMethod& method,
+            FormatContext& ctx) -> decltype(ctx.out())
 	{
 
         if(method == Pascal::HttpMethod::None)
@@ -182,7 +184,10 @@ struct fmt::formatter<Pascal::HttpMethod>
             Pascal::HttpMethod current = temp & (Pascal::HttpMethod)i;
             if(current != Pascal::HttpMethod::None) 
             {
-                format_to(ctx.out(), "{} ", Pascal::HttpRequestMethodToString(current));
+                format_to(
+                        ctx.out(),
+                        "{} ",
+                        Pascal::HttpRequestMethodToString(current));
                 temp ^= current;
             }
         }
@@ -200,9 +205,11 @@ struct fmt::formatter<Pascal::HttpVersion>
 	}
 
 	template<typename FormatContext>
-	auto format(const Pascal::HttpVersion& versio, FormatContext& ctx) -> decltype(ctx.out())
+	auto format(
+            const Pascal::HttpVersion& version, 
+            FormatContext& ctx) -> decltype(ctx.out())
 	{
-		return format_to(ctx.out(), "{}", Pascal::HttpVersionToString(versio));
+		return format_to(ctx.out(), "{}", Pascal::HttpVersionToString(version));
 	}
 };
 

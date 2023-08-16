@@ -21,7 +21,11 @@ namespace Pascal
 
     void EPollPoller::Poll(EventList& eventDescriptions, int timeout) 
     {
-        int eventCount = epoll_wait(m_EpollFd, &m_Events[0], m_Events.capacity(), timeout);
+        int eventCount = epoll_wait(
+                                m_EpollFd,
+                                &m_Events[0],
+                                m_Events.capacity(),
+                                timeout);
 
         if(eventCount > 0) 
         {
@@ -31,7 +35,9 @@ namespace Pascal
         }
     }
 
-    void EPollPoller::FillEventDescriptionList(int eventCount, EventList& eventDescriptions) 
+    void EPollPoller::FillEventDescriptionList(
+                                            int eventCount, 
+                                            EventList& eventDescriptions) 
     {
         for(int i = 0; i < eventCount; ++i) 
         {
@@ -39,7 +45,9 @@ namespace Pascal
             Event* eventDescription = static_cast<Event*>(event.data.ptr);
             int eventHandle = eventDescription->GetEventHandle();
 
-            PS_ASSERT(m_ChannelMap.find(eventHandle) != m_ChannelMap.end(), "Event description doesn't exist");
+            PS_ASSERT(
+                    m_ChannelMap.find(eventHandle) != m_ChannelMap.end(),
+                    "Event description doesn't exist");
 
             eventDescription->SetReturnedEventMask(event.events);
             eventDescriptions.push_back(eventDescription);

@@ -19,7 +19,9 @@ namespace Pascal
     class HttpServer 
     {
     public:
-        using HttpRequestCallback = std::function<Shared<HttpResponse>(const Shared<HttpRequest>&)>;
+        using HttpRequestCallback = std::function<
+                                                Shared<HttpResponse>(
+                                                    const Shared<HttpRequest>&)>;
 
         HttpServer(const Shared<EventLoop>& eventLoop);
         ~HttpServer();
@@ -35,7 +37,10 @@ namespace Pascal
         void HandleReadPeer(Shared<Connection> connection, Buffer& buffer);
         void HandleWritePeer(Shared<Connection> connection);
         void HandleClosePeer(Shared<Connection> connection);
-        void SendResponse(const Shared<Connection>& connection, const Shared<HttpResponse>& response);
+        
+        void SendResponse(
+                        const Shared<Connection>& connection,
+                        const Shared<HttpResponse>& response);
 
         void HandleAccept();
         

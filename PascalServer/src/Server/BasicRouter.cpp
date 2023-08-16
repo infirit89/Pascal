@@ -8,14 +8,26 @@ namespace Pascal
                         const ResponseCallback& callback,
                         HttpMethod allowedMethods) 
     {
-        RouterItemData data = { .Callback = callback, .MethodMask = allowedMethods };
+        RouterItemData data = 
+        {
+            .Callback = callback,
+            .MethodMask = allowedMethods
+        };
 
         m_Routes.emplace(path, data);
     }
 
-    void BasicRouter::AddRoute(const std::string& path, ResponseCallback&& callback, HttpMethod allowedMethods) 
+    void BasicRouter::AddRoute(
+                        const std::string& path,
+                        ResponseCallback&& callback,
+                        HttpMethod allowedMethods) 
     {
-        RouterItemData data = { .Callback = callback, .MethodMask = allowedMethods };
+        RouterItemData data = 
+        {
+            .Callback = callback,
+            .MethodMask = allowedMethods
+        };
+
         m_Routes.emplace(path, data);
     }
 

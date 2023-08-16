@@ -42,11 +42,15 @@ namespace Pascal
         return nullptr;
     }
 
-    Shared<HttpResponse> StaticFileRouter::CreateFileResponse(const std::filesystem::path& filePath) 
+    Shared<HttpResponse> StaticFileRouter::
+                                        CreateFileResponse(
+                                            const std::filesystem::path& filePath) 
     {
         Shared<HttpResponse> response = CreateShared<HttpResponse>();
 
-        if(ContentTypeExtensionMap.find(filePath.extension()) == ContentTypeExtensionMap.end()) 
+        if(
+            ContentTypeExtensionMap.find(
+                filePath.extension()) == ContentTypeExtensionMap.end()) 
         {
             PS_ERROR("File type not supported: {}", filePath);
             return nullptr;

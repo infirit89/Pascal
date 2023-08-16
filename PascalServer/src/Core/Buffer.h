@@ -53,8 +53,10 @@ namespace Pascal
         template<typename... T>
         void WriteFormatted(fmt::format_string<T...> format, T&&... args) 
         {
-            auto result = fmt::format_to_n(GetWritable(), GetCapacity() - GetSize(),
-                format, std::forward<T>(args)...);
+            auto result = fmt::format_to_n(
+                                        GetWritable(), 
+                                        GetCapacity() - GetSize(),
+                                        format, std::forward<T>(args)...);
 
             if(result.size + GetSize() > GetCapacity()) 
             {
@@ -63,8 +65,10 @@ namespace Pascal
                     temp *= 2;
                 
                 Reserve(temp);
-                result = fmt::format_to_n(GetWritable(), GetCapacity() - GetSize(),
-                            format, std::forward<T>(args)...);
+                result = fmt::format_to_n(
+                                        GetWritable(), 
+                                        GetCapacity() - GetSize(),
+                                        format, std::forward<T>(args)...);
             }
 
             m_Size += result.size;

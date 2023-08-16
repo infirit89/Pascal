@@ -21,7 +21,11 @@ namespace Pascal
         m_ListenerSocket.Bind(address);
 
         m_ListenerEvent = CreateShared<Event>(m_ListenerSocket.GetHandle());
-        m_ListenerEvent->SetReadCallback(std::bind(&HttpServer::HandleAccept, this));
+        m_ListenerEvent->SetReadCallback(
+                                        std::bind(
+                                                &HttpServer::HandleAccept, 
+                                                this));
+
         m_RecvStr.resize(PS_HTTP_REQUEST_INITIAL_SIZE * 2);
 
         m_ListenerSocket.Listen();
@@ -43,10 +47,23 @@ namespace Pascal
 
         PS_ASSERT(clientHandle != PS_INVALID_SOCKET, "Couldn't accept a valid client");
 
-        std::shared_ptr<Connection> connection = std::make_shared<Connection>(m_EventLoop, clientHandle);
+        std::shared_ptr<Connection> connection =
+                                    std::make_shared<Connection>(
+                                                                m_EventLoop, 
+                                                                clientHandle);
 
-        connection->SetReadCallback(std::bind(&HttpServer::HandleReadPeer, this, std::placeholders::_1, std::placeholders::_2));
-        connection->SetCloseCallback(std::bind(&HttpServer::HandleClosePeer, this, std::placeholders::_1));
+        connection->SetReadCallback(
+                                std::bind(
+                                        &HttpServer::HandleReadPeer,
+                                        this,
+                                        std::placeholders::_1,
+                                        std::placeholders::_2));
+
+        connection->SetCloseCallback(
+                                std::bind(
+                                    &HttpServer::HandleClosePeer,
+                                    this,
+                                    std::placeholders::_1));
 
         m_Connections.insert(connection);
 
@@ -84,7 +101,9 @@ namespace Pascal
         SendResponse(connection, response);
     }
     
-    void HttpServer::SendResponse(const Shared<Connection>& connection, const Shared<HttpResponse>& response) 
+    void HttpServer::SendResponse(
+                                const Shared<Connection>& connection,
+                                const Shared<HttpResponse>& response) 
     {
         std::string responseData = HttpResponseBuilder::BuildResponse(response);
 

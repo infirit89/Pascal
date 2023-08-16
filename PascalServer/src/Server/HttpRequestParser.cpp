@@ -16,15 +16,19 @@ namespace Pascal
         return crlf == messageBuffer.GetWritable() ? nullptr : crlf;
     }
 
-    Shared<HttpRequest> HttpRequestParser::ParseRequest(Buffer& messageBuffer, Status& status) 
+    Shared<HttpRequest> HttpRequestParser::ParseRequest(
+                                                    Buffer& messageBuffer,
+                                                    Status& status) 
     {
         // TODO: error handling
 
         Shared<HttpRequest> request = CreateShared<HttpRequest>();
 
         // try parse the request method:
-        const char* methodSeperator = std::find(messageBuffer.Peek(), 
-                                        (const char*)messageBuffer.GetWritable(), ' ');
+        const char* methodSeperator = std::find(
+                                        messageBuffer.Peek(),
+                                        (const char*)messageBuffer.GetWritable(),
+                                        ' ');
 
         if(methodSeperator == messageBuffer.GetWritable())
         {
@@ -52,8 +56,10 @@ namespace Pascal
         messageBuffer.Advance(method.size() + 1);
 
         // try parse the request path:
-        const char* pathSeperator = std::find(messageBuffer.Peek(), 
-                                    (const char*)messageBuffer.GetWritable(), ' ');
+        const char* pathSeperator = std::find(
+                                    messageBuffer.Peek(),
+                                    (const char*)messageBuffer.GetWritable(),
+                                    ' ');
 
         if(pathSeperator == messageBuffer.GetWritable())
         {
@@ -99,7 +105,11 @@ namespace Pascal
         while(true) 
         {
             eol = FindCRLF(messageBuffer);
-            const char* valueSeperator = std::find(messageBuffer.Peek(), eol, ':');
+            const char* valueSeperator = std::find(
+                                                messageBuffer.Peek(),
+                                                eol,
+                                                ':');
+                                                
             if(valueSeperator == eol)
                 break;
 

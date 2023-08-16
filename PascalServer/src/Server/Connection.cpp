@@ -5,8 +5,12 @@ namespace Pascal
 {
     static const uint32_t s_DefaultRequestSize = PS_HTTP_REQUEST_INITIAL_SIZE * 2;
 
-    Connection::Connection(const Shared<EventLoop>& eventLoop, ps_socket socketHandle) 
-        : m_EventLoop(eventLoop), m_Socket(socketHandle), m_MessageBuffer(s_DefaultRequestSize)
+    Connection::Connection(
+                        const Shared<EventLoop>& eventLoop, 
+                        ps_socket socketHandle) 
+        : m_EventLoop(eventLoop), 
+        m_Socket(socketHandle), 
+        m_MessageBuffer(s_DefaultRequestSize)
     {
         m_Event = CreateShared<Event>(socketHandle);
 

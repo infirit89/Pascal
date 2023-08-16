@@ -151,7 +151,8 @@ namespace Pascal
         return "";
     }
 
-    std::string HttpResponseBuilder::BuildResponse(const Shared<HttpResponse>& response) 
+    std::string HttpResponseBuilder::BuildResponse(
+                                                const Shared<HttpResponse>& response) 
     {
         Buffer buffer(PS_HTTP_REQUEST_INITIAL_SIZE);
         
@@ -161,7 +162,9 @@ namespace Pascal
                             StatusCodeToString(response->m_Status));
 
         // write the content length
-        buffer.WriteFormatted("Content-Length: {0}\r\n", response->GetContentLength());
+        buffer.WriteFormatted(
+                            "Content-Length: {0}\r\n",
+                            response->GetContentLength());
 
         // write all the headers
         for(const auto& [header, headerData] : response->GetHeaders())
