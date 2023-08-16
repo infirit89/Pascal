@@ -161,7 +161,7 @@ namespace Pascal
                             StatusCodeToString(response->m_Status));
 
         // write the content length
-        buffer.WriteFormatted("Content-Length: {0}\r\n", response->GetBody().size());
+        buffer.WriteFormatted("Content-Length: {0}\r\n", response->GetContentLength());
 
         // write all the headers
         for(const auto& [header, headerData] : response->GetHeaders())

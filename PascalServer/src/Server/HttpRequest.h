@@ -1,6 +1,6 @@
 #pragma once
 
-#include "HttpUtils.h"
+#include "HttpTypes.h"
 
 #include <string>
 #include <unordered_map>
@@ -14,16 +14,40 @@ namespace Pascal
 
         HttpMethod GetMethod() const { return m_Method; }
         const std::string& GetTarget() const { return m_Target; }
-        const std::string& GetVersionString() const { return m_VersionString; }
         HttpVersion GetVersion() const { return m_Version; }
         const HeaderMap& GetHeaders() const { return m_Headers; }
+        const std::string& GetBody() const { return m_Body; }
+
+        std::string GetHeader(const std::string& header) 
+        {
+            if(m_Headers.find(header) != m_Headers.end())
+                return m_Headers.at(header);
+
+            return "";
+        }
+
+        size_t GetHeaderCount() const { return m_Headers.size(); }
+
+        std::string GetParamater(const std::string& paramName)
+        {
+            if(!m_HasParsedParameters)
+                ParseParameters();
+
+            if(m_Parameters.find(paramName) != m_Parameters.end())
+                return m_Parameters.at(paramName);
+
+            return "";
+        }
         
     private:
+        void ParseParameters();
         HttpVersion m_Version;
         HttpMethod m_Method;
         std::string m_Target;
-        std::string m_VersionString;
         HeaderMap m_Headers;
+        std::string m_Body;
+        bool m_HasParsedParameters = false;
+        std::unordered_map<std::string, std::string> m_Parameters;
 
         friend class HttpRequestParser;
     };
@@ -47,11 +71,17 @@ struct fmt::formatter<Pascal::Shared<Pascal::HttpRequest>>
         format_to(ctx.out(), "\nRequest:\n");
         format_to(ctx.out(), "\tMethod: {}\n", Pascal::HttpRequestMethodToString(request->GetMethod()));
         format_to(ctx.out(), "\tTarget: {}\n", request->GetTarget());
-        format_to(ctx.out(), "\tVersion: {}\n", request->GetVersionString());
+        format_to(ctx.out(), "\tVersion: {}\n", request->GetVersion());
 
         format_to(ctx.out(), "\tHeaders:\n");
         for (const auto& [header, headerData] : request->GetHeaders())
             format_to(ctx.out(), "\t\t{}: {}\n", header, headerData);
+
+        if(request->GetHeader("content-length") != "") 
+        {
+            format_to(ctx.out(), "\tBody:\n");
+            format_to(ctx.out(), "\t\t{}", request->GetBody());
+        }
         
 		return ctx.out();
 	}

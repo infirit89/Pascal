@@ -33,20 +33,27 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Server/Connection.cpp
         ${PROJECT_NAME}/src/Core/Buffer.h
         ${PROJECT_NAME}/src/Core/Buffer.cpp
-        ${PROJECT_NAME}/src/Server/HttpUtils.h
-        ${PROJECT_NAME}/src/Server/HttpUtils.cpp
+        ${PROJECT_NAME}/src/Server/HttpTypes.h
+        ${PROJECT_NAME}/src/Server/HttpTypes.cpp
         ${PROJECT_NAME}/src/Server/HttpRequest.h
+        ${PROJECT_NAME}/src/Server/HttpRequest.cpp
         ${PROJECT_NAME}/src/Server/HttpRequestParser.h
         ${PROJECT_NAME}/src/Server/HttpRequestParser.cpp
         ${PROJECT_NAME}/src/Server/Router.h
-        ${PROJECT_NAME}/src/Server/Router.cpp
         ${PROJECT_NAME}/src/Server/HttpResponse.h
         ${PROJECT_NAME}/src/Server/HttpResponseBuilder.h
-        ${PROJECT_NAME}/src/Server/HttpResponseBuilder.cpp)
+        ${PROJECT_NAME}/src/Server/HttpResponseBuilder.cpp
+        ${PROJECT_NAME}/src/Server/StaticFileRouter.h
+        ${PROJECT_NAME}/src/Server/StaticFileRouter.cpp
+        ${PROJECT_NAME}/src/Utils/Utils.h
+        ${PROJECT_NAME}/src/Utils/Utils.cpp
+        ${PROJECT_NAME}/src/Server/BasicRouter.h
+        ${PROJECT_NAME}/src/Server/BasicRouter.cpp)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
-        PascalServer/vendor/spdlog/include)
+        PascalServer/vendor/spdlog/include
+        PascalServer/vendor/nlohmann)
 
 target_compile_options(PascalServer PRIVATE
     $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:-m64>
@@ -89,7 +96,8 @@ add_dependencies(Sandbox PascalServer)
 target_include_directories(Sandbox PRIVATE
         Sandbox/src
         PascalServer/src
-        PascalServer/vendor/spdlog/include)
+        PascalServer/vendor/spdlog/include
+        PascalServer/vendor/nlohmann)
 
 target_link_libraries(Sandbox PascalServer)
 

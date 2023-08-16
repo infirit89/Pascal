@@ -78,8 +78,15 @@ namespace Pascal
         bytes = recv(m_Socket.GetHandle(), m_MessageBuffer.GetWritable(), 
         m_MessageBuffer.GetCapacity() - m_MessageBuffer.GetSize(), 0);
 
-        if(bytes > 0)
+        if(bytes > m_MessageBuffer.GetCapacity())
+            PS_ERROR("too long");
+
+        if(bytes > 0) 
+        {
             m_MessageBuffer.m_Size += bytes;
+            m_MessageBuffer.m_Data[m_MessageBuffer.m_Size] = '\0';
+        }
+
 
         if(bytes == 0) 
         {

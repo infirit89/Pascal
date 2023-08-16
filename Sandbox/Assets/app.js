@@ -21,30 +21,33 @@ class TestParams
     }
 }
 
-function Test() 
+function Test()
 {
     const http = new XMLHttpRequest();
     const url = 'http://localhost:8080/test';
-    const requestQueryBuilder = new RequestQueryBuilder();
-
+    const queryBuilder = new RequestQueryBuilder();
 
     const testParams = new TestParams();
     testParams.testOption = 'cum2';
+    queryBuilder.add('json', JSON.stringify(testParams));
 
-    requestQueryBuilder.add('json', JSON.stringify(testParams));
 
-    http.open("POST", url);
-    http.send(requestQueryBuilder.build());
+    http.open("POST", url, true);
+    http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    http.send(queryBuilder.build());
 
     http.onreadystatechange = function() 
     {
         if(this.readyState == 4 && this.status == 200) 
         {
-            console.log(http.response);
-            console.log(http.responseText);
-            console.log(http.responseType);
-            console.log(http.responseURL);
-            console.log(http.responseXML);
+            const response = JSON.parse(http.responseText);
+            console.log(response);
+
+            // console.log(http.response);
+            // console.log(http.responseText);
+            // console.log(http.responseType);
+            // console.log(http.responseURL);
+            // console.log(http.responseXML);
         }
     }
 

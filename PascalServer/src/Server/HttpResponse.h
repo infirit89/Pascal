@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "HttpUtils.h"
+#include "HttpTypes.h"
 
 #include <unordered_map>
 
@@ -10,10 +10,13 @@ namespace Pascal
     {
     public:
         HttpResponse(HttpStatus status) 
-            : m_Status(status) { }
+            : m_Status(status), m_ContentLength(0) { }
+
+        HttpResponse(const std::string& body, HttpStatus status) 
+            : m_Status(status), m_Body(body), m_ContentLength(body.size()) { }
 
         HttpResponse() 
-            : m_Status(HttpStatus::Success) { }
+            : m_Status(HttpStatus::Success), m_ContentLength(0) { }
 
         ~HttpResponse() {}
 
@@ -27,24 +30,25 @@ namespace Pascal
             m_Headers.emplace(header, headerData);
         }
 
+        void SetBody(const std::string& body, size_t length) 
+        {
+            m_Body = body;
+            m_ContentLength = length;
+        }
+
         void SetBody(const std::string& body) 
         {
             m_Body = body;
+            m_ContentLength = body.size();
         }
 
-        const std::string& GetBody() const 
-        {
-            return m_Body;
-        }
+        const std::string& GetBody() const { return m_Body; }
+        const HeaderMap& GetHeaders() const { return m_Headers; }
+        size_t GetContentLength() const { return m_ContentLength; }
 
-        const HeaderMap& GetHeaders() const 
+        void SetContentType(HttpContentType contentType) 
         {
-            return m_Headers;
-        }
-
-        void SetContentType(const std::string& type) 
-        {
-            m_Headers.emplace("Content-Type", type);
+            m_Headers.emplace("Content-Type", HttpContentTypeToString(contentType));
         }
 
     private:
@@ -52,6 +56,7 @@ namespace Pascal
         HttpStatus m_Status;
         HeaderMap m_Headers;
         std::string m_Body;
+        size_t m_ContentLength;
 
         friend class HttpResponseBuilder;
     };

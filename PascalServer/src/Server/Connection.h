@@ -14,7 +14,7 @@ namespace Pascal
     class Connection : public std::enable_shared_from_this<Connection>
     {
     public:
-        using RecieveMessageCallback = std::function<void(Shared<Connection>, const Buffer& message)>;
+        using RecieveMessageCallback = std::function<void(Shared<Connection>, Buffer& message)>;
         using WriteCallback = std::function<void(Shared<Connection>)>;
         using CloseCallback = std::function<void(Shared<Connection>)>;
 

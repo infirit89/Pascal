@@ -45,8 +45,11 @@ namespace Pascal
 
     void Buffer::Write(char* data, uint32_t size) 
     {
-        while(size + m_Size >= m_Capacity)
-            Reserve(m_Capacity * 2);
+        uint32_t temp = m_Capacity;
+        while(size + m_Size >= temp)
+            temp *= 2;
+
+        Reserve(temp);
 
         memcpy(GetWritable(), data, size);
         m_Size += size;
@@ -54,8 +57,11 @@ namespace Pascal
 
     void Buffer::Write(const std::string& data) 
     {
-        while(data.size() + m_Size >= m_Capacity)
-            Reserve(m_Capacity * 2);
+        uint32_t temp = m_Capacity;
+        while(data.size() + m_Size > temp)
+            temp *= 2;
+
+        Reserve(temp);
 
         memcpy(GetWritable(), data.c_str(), data.size());
         m_Size += data.size();
@@ -88,5 +94,13 @@ namespace Pascal
         PS_ASSERT(temp, "Couldn't realocate the buffer's data");
         if(temp)
             m_Data = temp;
+    }
+
+    void Buffer::Advance(uint32_t offset) 
+    {
+        if(m_Head + offset > m_Size)
+            return;
+
+        m_Head += offset;
     }
 }

@@ -3,7 +3,8 @@
 #include "Base.h"
 
 #include "EventLoop.h"
-#include "Server/Router.h"
+#include "Server/StaticFileRouter.h"
+#include "Server/BasicRouter.h"
 
 #include <functional>
 
@@ -18,7 +19,7 @@ namespace Pascal
     public:
         using ErrorHandler = std::function<Shared<HttpResponse>(HttpStatus)>;
 
-        static Application& GetInstance() 
+        static Application& GetInstance()
         {
             static Application instance;
             return instance;
@@ -31,10 +32,19 @@ namespace Pascal
 
         bool IsRunning() { return m_EventLoop->IsRunning(); }
 
-        void AddSimpleHttpResponseHandler(const std::string& path, const Router::ResponseCallback& callback);
-        void AddSimpleHttpResponseHandler(const std::string& path, Router::ResponseCallback&& callback);
+        void AddSimpleHttpResponseHandler(
+                                        const std::string& path,
+                                        const BasicRouter::ResponseCallback& callback,
+                                        HttpMethod allowedMethods = HttpMethod::Get);
+        void AddSimpleHttpResponseHandler(
+                                        const std::string& path,
+                                        BasicRouter::ResponseCallback&& callback,
+                                        HttpMethod allowedMethods = HttpMethod::Get);
 
-        void SetErrorHandler(const ErrorHandler& errorHandler) { m_ErrorHandler = errorHandler; }
+        void MountPath(const std::filesystem::path& path);
+
+        void SetErrorHandler(const ErrorHandler& errorHandler) 
+        { m_ErrorHandler = errorHandler; }
 
     private:
         Shared<HttpResponse> OnHttpRequest(const Shared<HttpRequest>& request);
@@ -44,7 +54,8 @@ namespace Pascal
 
         Unique<HttpServer> m_Server;
         Shared<EventLoop> m_EventLoop;
-        Unique<Router> m_HttpResponseRouter;
+        Unique<BasicRouter> m_HttpResponseRouter;
+        Unique<StaticFileRouter> m_StaticFileRouter;
         ErrorHandler m_ErrorHandler;
     };
 

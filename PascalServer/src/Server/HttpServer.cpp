@@ -53,9 +53,11 @@ namespace Pascal
         connection->EstablishConnection();
     }
 
-    void HttpServer::HandleReadPeer(Shared<Connection> connection, const Buffer& buffer) 
+    void HttpServer::HandleReadPeer(Shared<Connection> connection, Buffer& buffer) 
     {
         HttpRequestParser::Status status;
+        PS_TRACE(buffer);
+
         Shared<HttpRequest> request = HttpRequestParser::ParseRequest(buffer, status);
 
         Shared<HttpResponse> response;
@@ -85,10 +87,6 @@ namespace Pascal
     void HttpServer::SendResponse(const Shared<Connection>& connection, const Shared<HttpResponse>& response) 
     {
         std::string responseData = HttpResponseBuilder::BuildResponse(response);
-
-        std::cout << responseData << '\n';
-        
-        // PS_TRACE(responseData);
 
         connection->Send(responseData);
     }

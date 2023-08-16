@@ -3,7 +3,7 @@
 #include "Core/Buffer.h"
 
 #include "Server/HttpRequestParser.h"
-#include "Server/HttpUtils.h"
+#include "Server/HttpTypes.h"
 
 namespace UnitTests 
 {
@@ -11,15 +11,17 @@ namespace UnitTests
 
     void HttpRequestParserTest1() 
     {
-        Buffer messageBuffer("GET /hello.html HTTP/1.1\r\n" +
-                                std::string("User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n") +
-                                std::string("Host: www.tutorialspoint.com\r\n") +
-                                std::string("Accept-Language: en-us\r\n") +
-                                std::string("Accept-Encoding: gzip, deflate\r\n") +
-                                std::string("Connection: Keep-Alive\r\n"));
+        Buffer messageBuffer(
+            "GET /hello.html HTTP/1.1\r\n" +
+            std::string("User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n") +
+            std::string("Host: www.tutorialspoint.com\r\n") +
+            std::string("Accept-Language: en-us\r\n") +
+            std::string("Accept-Encoding: gzip, deflate\r\n") +
+            std::string("Connection: Keep-Alive\r\n"));
 
         HttpRequestParser::Status status;
-        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, status);
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, 
+                                                                        status);
 
         PS_TRACE(messageBuffer);
         PS_TRACE(request);
@@ -39,23 +41,27 @@ namespace UnitTests
         Buffer messageBuffer("GE /hello.html HTTP/1.1\r\n");
 
         HttpRequestParser::Status status;
-        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, status);
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, 
+                                                                        status);
 
-        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::UnexpectedMethod);
+        Utils::AssertIfNotEqual((int)status, 
+                                (int)HttpRequestParser::Status::UnexpectedMethod);
 
         // missing request method test:
         messageBuffer = Buffer("/hello.html HTTP/1.1\r\n");
 
         request = HttpRequestParser::ParseRequest(messageBuffer, status);
 
-        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::UnexpectedMethod);
+        Utils::AssertIfNotEqual((int)status, 
+                                (int)HttpRequestParser::Status::UnexpectedMethod);
 
         // someone had a stroke request method test:
         messageBuffer = Buffer("CUM /hello.html HTTP/1.1\r\n");
 
         request = HttpRequestParser::ParseRequest(messageBuffer, status);
 
-        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::UnexpectedMethod);
+        Utils::AssertIfNotEqual((int)status, 
+                                (int)HttpRequestParser::Status::UnexpectedMethod);
     }
 
     void HttpRequestParserTest3() 
@@ -66,7 +72,8 @@ namespace UnitTests
         // set to 4 just to test
         HttpRequestParser::SetMaxURILength(4);
         HttpRequestParser::Status status;
-        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, status);
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, 
+                                                                        status);
 
         Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::URITooLong);
 
@@ -77,7 +84,8 @@ namespace UnitTests
 
         request = HttpRequestParser::ParseRequest(messageBuffer, status);
 
-        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::IllformedRequest);
+        Utils::AssertIfNotEqual((int)status, 
+                                (int)HttpRequestParser::Status::IllformedRequest);
     }
 
     void HttpRequestParserTest4() 
@@ -86,15 +94,18 @@ namespace UnitTests
         Buffer messageBuffer("GET /hello.html HTTP/.1\r\n");
 
         HttpRequestParser::Status status;
-        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, status);
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, 
+                                                                        status);
 
-        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::HttpVersionNotSupported);
+        Utils::AssertIfNotEqual((int)status, 
+                                (int)HttpRequestParser::Status::HttpVersionNotSupported);
 
         // missing crlf test:
         messageBuffer = Buffer("GET /hello.html HTTP/1.1\r");
         request = HttpRequestParser::ParseRequest(messageBuffer, status);
 
-        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::IllformedRequest);
+        Utils::AssertIfNotEqual((int)status, 
+                                (int)HttpRequestParser::Status::IllformedRequest);
 
         messageBuffer = Buffer("GET /hello.html HTTP/1.1\r\n");
         request = HttpRequestParser::ParseRequest(messageBuffer, status);
@@ -115,6 +126,22 @@ namespace UnitTests
         Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, status);
 
         Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::Success);
+
+    }
+
+    void HttpRequestParserTest6() 
+    {
+        Buffer messageBuffer("GET /hello.html HTTP/1.1\r\n");
+
+        HttpRequestParser::Status status;
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(messageBuffer, 
+                                                                            status);
+
+        Utils::AssertIfNotEqual((int)status, (int)HttpRequestParser::Status::Success);
+
+        Utils::AssertIfNotEqual(request->GetMethod(), HttpMethod::Get);
+        Utils::AssertIfNotEqual(request->GetTarget(), std::string("/hello.html"));
+        Utils::AssertIfNotEqual(request->GetVersion(), HttpVersion::Http11);
 
     }
 }

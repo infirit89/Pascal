@@ -32,7 +32,7 @@ namespace Pascal
         }
         
     private:
-        void HandleReadPeer(Shared<Connection> connection, const Buffer& buffer);
+        void HandleReadPeer(Shared<Connection> connection, Buffer& buffer);
         void HandleWritePeer(Shared<Connection> connection);
         void HandleClosePeer(Shared<Connection> connection);
         void SendResponse(const Shared<Connection>& connection, const Shared<HttpResponse>& response);

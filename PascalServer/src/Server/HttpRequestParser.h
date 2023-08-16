@@ -19,7 +19,7 @@ namespace Pascal
             HttpVersionNotSupported
         };
 
-        static Shared<HttpRequest> ParseRequest(const Buffer& messageBuffer, Status& status);
+        static Shared<HttpRequest> ParseRequest(Buffer& messageBuffer, Status& status);
         static uint32_t GetMaxURILength() { return s_MaxUriLength; }
         static void SetMaxURILength(uint32_t maxUriLength) { s_MaxUriLength = maxUriLength; }
 

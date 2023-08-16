@@ -9,4 +9,5 @@ namespace UnitTests
     void HttpRequestParserTest3();
     void HttpRequestParserTest4();
     void HttpRequestParserTest5();
+    void HttpRequestParserTest6();
 }

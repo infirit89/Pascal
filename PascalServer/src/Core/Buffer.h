@@ -32,9 +32,19 @@ namespace Pascal
             return *this;
         }
 
-        char* GetWritable()
+        const char* GetWritable() const
         {
             return m_Data + m_Size;
+        }
+
+        char* GetWritable() 
+        {
+            return m_Data + m_Size;
+        }
+
+        const char* Peek() const
+        {
+            return m_Data + m_Head;
         }
 
         void Write(char* data, uint32_t size);
@@ -48,10 +58,11 @@ namespace Pascal
 
             if(result.size + GetSize() > GetCapacity()) 
             {
-                while(result.size + m_Size > m_Capacity)
-                    m_Capacity *= 2;
+                uint32_t temp = m_Capacity;
+                while(result.size + m_Size > temp)
+                    temp *= 2;
                 
-                Reserve(m_Capacity);
+                Reserve(temp);
                 result = fmt::format_to_n(GetWritable(), GetCapacity() - GetSize(),
                             format, std::forward<T>(args)...);
             }
@@ -62,6 +73,8 @@ namespace Pascal
 
         std::string Read(uint32_t size, uint32_t offset = 0);
         std::string ReadAll() const;
+
+        void Advance(uint32_t offset);
 
         const char* GetData() const { return m_Data; }
 
@@ -74,6 +87,7 @@ namespace Pascal
         char* m_Data = nullptr;
         uint32_t m_Capacity = 0;
         uint32_t m_Size = 0;
+        uint32_t m_Head = 0;
 
         friend class Connection;
     };

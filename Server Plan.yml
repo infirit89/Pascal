@@ -51,7 +51,11 @@ Internal Server Plan:
     [Done]
     HttpResponseBuilder:    builds a raw response from a response object
 
+    [Done]
     Router (Basic):         maps a  request target to a callback (won't support query parameters)
 
+    [Done]
+    Router (StaticFiles):   router for static files
 
-
+    [TODO (Maybe)]
+    The posibility of imbeding server data into a html file

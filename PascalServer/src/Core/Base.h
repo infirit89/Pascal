@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <type_traits>
 
 namespace Pascal 
 {
@@ -38,4 +39,33 @@ namespace Pascal
 	{
 		return std::make_shared<T>(std::forward<Args>(args)...);
 	}
+
+	#define BIT(x) 1 << x
+
+	#define DEFINE_ENUM_BITMASK_OPERATORS(EnumType) 						\
+		inline constexpr EnumType operator&(EnumType lhs, EnumType rhs) 	\
+		{ 																	\
+			return static_cast<HttpMethod>( 								\
+				static_cast<std::underlying_type_t<EnumType>>(lhs) & 		\
+				static_cast<std::underlying_type_t<EnumType>>(rhs)); 		\
+		} 																	\
+		inline constexpr EnumType operator|(EnumType lhs, EnumType rhs) 	\
+		{ 																	\
+			return static_cast<HttpMethod>( 								\
+				static_cast<std::underlying_type_t<EnumType>>(lhs) | 		\
+				static_cast<std::underlying_type_t<EnumType>>(rhs)); 		\
+		} 																	\
+		inline constexpr EnumType operator^(EnumType lhs, EnumType rhs) 	\
+		{ 																	\
+			return static_cast<HttpMethod>( 								\
+				static_cast<std::underlying_type_t<EnumType>>(lhs) ^ 		\
+				static_cast<std::underlying_type_t<EnumType>>(rhs)); 		\
+		} 																	\
+		inline constexpr EnumType& operator^=(EnumType& lhs, EnumType rhs) 	\
+		{ 																	\
+			lhs = static_cast<HttpMethod>( 									\
+				static_cast<std::underlying_type_t<EnumType>>(lhs) ^ 		\
+				static_cast<std::underlying_type_t<EnumType>>(rhs)); 		\
+			return lhs; 													\
+		}
 }
