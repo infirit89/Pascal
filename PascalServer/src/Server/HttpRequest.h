@@ -39,11 +39,14 @@ namespace Pascal
             return "";
         }
         
+        const std::string& GetQuery() const { return m_Query; }
+
     private:
         void ParseParameters();
         HttpVersion m_Version;
         HttpMethod m_Method;
         std::string m_Target;
+        std::string m_Query;
         HeaderMap m_Headers;
         std::string m_Body;
         bool m_HasParsedParameters = false;
@@ -77,6 +80,10 @@ struct fmt::formatter<Pascal::Shared<Pascal::HttpRequest>>
                 Pascal::HttpRequestMethodToString(request->GetMethod()));
 
         format_to(ctx.out(), "\tTarget: {}\n", request->GetTarget());
+
+        if(request->GetQuery() != "")
+            format_to(ctx.out(), "\tQuery: {}\n", request->GetQuery());
+
         format_to(ctx.out(), "\tVersion: {}\n", request->GetVersion());
 
         format_to(ctx.out(), "\tHeaders:\n");

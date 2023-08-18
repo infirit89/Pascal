@@ -40,6 +40,7 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Server/HttpRequestParser.h
         ${PROJECT_NAME}/src/Server/HttpRequestParser.cpp
         ${PROJECT_NAME}/src/Server/Router.h
+        ${PROJECT_NAME}/src/Server/Router.cpp
         ${PROJECT_NAME}/src/Server/HttpResponse.h
         ${PROJECT_NAME}/src/Server/HttpResponseBuilder.h
         ${PROJECT_NAME}/src/Server/HttpResponseBuilder.cpp
@@ -48,7 +49,9 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Utils/Utils.h
         ${PROJECT_NAME}/src/Utils/Utils.cpp
         ${PROJECT_NAME}/src/Server/BasicRouter.h
-        ${PROJECT_NAME}/src/Server/BasicRouter.cpp)
+        ${PROJECT_NAME}/src/Server/BasicRouter.cpp
+        ${PROJECT_NAME}/src/Utils/FunctionTraits.h
+        ${PROJECT_NAME}/src/Server/HttpParameterBinder.h)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src

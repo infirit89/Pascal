@@ -152,6 +152,7 @@ namespace Pascal
     const char* HttpRequestMethodToString(HttpMethod method);
     const char* HttpVersionToString(HttpVersion version);
     const char* HttpContentTypeToString(HttpContentType version);
+    const char* HttpStatusToString(HttpStatus status);
 }
 
 #include <spdlog/spdlog.h>
@@ -213,3 +214,19 @@ struct fmt::formatter<Pascal::HttpVersion>
 	}
 };
 
+template <>
+struct fmt::formatter<Pascal::HttpStatus> 
+{
+	constexpr auto parse(format_parse_context& ctx) -> decltype(ctx.begin()) 
+	{
+		return ctx.end();
+	}
+
+	template<typename FormatContext>
+	auto format(
+            const Pascal::HttpStatus& status, 
+            FormatContext& ctx) -> decltype(ctx.out())
+	{
+		return format_to(ctx.out(), "{}", Pascal::HttpStatusToString(status));
+	}
+};

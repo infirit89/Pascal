@@ -4,6 +4,7 @@
 #include "Core/Base.h"
 #include "HttpRequest.h"
 #include "Router.h"
+#include "HttpParameterBinder.h"
 
 #include <unordered_map>
 #include <string>
@@ -15,9 +16,9 @@ namespace Pascal
     class BasicRouter : public Router
     {
     public:
-        using ResponseCallback = std::function<
-                                        Shared<HttpResponse>(
-                                            const Shared<HttpRequest>&)>;
+        // using ResponseCallback = std::function<
+        //                                 Shared<HttpResponse>(
+        //                                     const Shared<HttpRequest>&)>;
 
 
         BasicRouter() { }
@@ -25,22 +26,20 @@ namespace Pascal
 
         void AddRoute(
                     const std::string& path,
-                    const ResponseCallback& callback,
+                    const Shared<HttpParameterBinderBase>& binder,
                     HttpMethod allowedMethods = HttpMethod::Get);
 
-        void AddRoute(
-                    const std::string& path,
-                    ResponseCallback&& callback,
-                    HttpMethod allowedMethods = HttpMethod::Get);
-
-        virtual Shared<HttpResponse> Route(const Shared<HttpRequest>& request) override;
+        virtual Shared<HttpResponse> Route(
+                                        const Shared<HttpRequest>& request,
+                                        RoutingError& error) override;
 
     private:
 
         // bad bad name
         struct RouterItemData
         {
-            ResponseCallback Callback;
+            Shared<HttpParameterBinderBase> Binder;
+            std::vector<std::string> ParameterNames;
             HttpMethod MethodMask;
         };
 

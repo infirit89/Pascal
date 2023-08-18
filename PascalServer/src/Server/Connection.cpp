@@ -42,7 +42,6 @@ namespace Pascal
         {
             PS_ERROR(strerror(errno));
         }
-        
 
         PS_TRACE("Data Size: {0}; Written Size: {1}", size, writtenSize);
 
@@ -66,13 +65,15 @@ namespace Pascal
 
     void Connection::HandleWrite() 
     {
+        PS_TRACE("I cum");
+
         if(m_WriteCallback)
             m_WriteCallback(shared_from_this());
     }
 
     void Connection::HandleError() 
     {
-
+        PS_ERROR("Error: {}", strerror(errno));
     }
 
     void Connection::HandleRead() 

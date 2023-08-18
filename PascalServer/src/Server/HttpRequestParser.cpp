@@ -24,6 +24,8 @@ namespace Pascal
 
         Shared<HttpRequest> request = CreateShared<HttpRequest>();
 
+        PS_TRACE(messageBuffer);
+
         // try parse the request method:
         const char* methodSeperator = std::find(
                                         messageBuffer.Peek(),
@@ -67,7 +69,26 @@ namespace Pascal
             return nullptr;
         }
 
-        request->m_Target = std::string(messageBuffer.Peek(), pathSeperator);
+        const char* querySeperator = std::find(
+                                            messageBuffer.Peek(),
+                                            pathSeperator,
+                                            '?');
+
+        if(querySeperator != pathSeperator) 
+        {
+            request->m_Query = std::string(querySeperator + 1, pathSeperator);
+            
+            request->m_Target = std::string(
+                                        messageBuffer.Peek(), 
+                                        pathSeperator - querySeperator - 1);
+        }
+        else 
+        {
+            request->m_Target = std::string(
+                                        messageBuffer.Peek(), 
+                                        pathSeperator);
+        }
+
 
         if(request->m_Target.size() > s_MaxUriLength) 
         {
@@ -76,7 +97,7 @@ namespace Pascal
         }
         // --------------------------------
 
-        messageBuffer.Advance(request->m_Target.size() + 1);
+        messageBuffer.Advance(pathSeperator - messageBuffer.Peek() + 1);
 
         // try parse the request version:
         const char* eol = FindCRLF(messageBuffer);

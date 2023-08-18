@@ -5,11 +5,16 @@
 
 namespace Pascal 
 {
-    Shared<HttpResponse> StaticFileRouter::Route(const Shared<HttpRequest>& request) 
+    Shared<HttpResponse> StaticFileRouter::Route(
+                                                const Shared<HttpRequest>& request, 
+                                                RoutingError& error) 
     {
         // the only valid request method for static files should be get
-        if(request->GetMethod() != HttpMethod::Get)
+        if(request->GetMethod() != HttpMethod::Get) 
+        {
+            error = RoutingError::MethodNotAllowed;
             return nullptr;
+        }
 
         for(const auto& directoryPath : m_Paths) 
         {
@@ -20,25 +25,25 @@ namespace Pascal
                 {
                     if(m_UseImplicitPage) 
                     {
-
+                        error = RoutingError::None;
                         return CreateFileResponse(directoryPath / m_ImplicitPage);
                     }
                     else 
                     {
                         // forbidden
+                        error = RoutingError::Forbidden;
+                        return nullptr;
                     }
                 }
                 else 
                 {
+                    error = RoutingError::None;
                     return CreateFileResponse(path);
                 }
             }
-            else 
-            {
-                // not found
-            }
         }
 
+        error = RoutingError::ResourceNotFound;
         return nullptr;
     }
 

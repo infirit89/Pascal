@@ -32,14 +32,19 @@ namespace Pascal
 
         bool IsRunning() { return m_EventLoop->IsRunning(); }
 
+        template<typename Function>
         void AddSimpleHttpResponseHandler(
                                         const std::string& path,
-                                        const BasicRouter::ResponseCallback& callback,
-                                        HttpMethod allowedMethods = HttpMethod::Get);
-        void AddSimpleHttpResponseHandler(
-                                        const std::string& path,
-                                        BasicRouter::ResponseCallback&& callback,
-                                        HttpMethod allowedMethods = HttpMethod::Get);
+                                        Function&& callback,
+                                        HttpMethod allowedMethods = HttpMethod::Get) 
+        {
+            PS_INFO("Adding handler for route: {0}; Allowed methods: {1}", path, allowedMethods);
+            auto binder = 
+                    CreateShared<HttpParameterBinder<Function>>(
+                                                            std::forward<Function>(callback));
+            
+            m_HttpResponseRouter->AddRoute(path, binder, allowedMethods);
+        }
 
         void MountPath(const std::filesystem::path& path);
 
@@ -54,8 +59,10 @@ namespace Pascal
 
         Unique<HttpServer> m_Server;
         Shared<EventLoop> m_EventLoop;
-        Unique<BasicRouter> m_HttpResponseRouter;
-        Unique<StaticFileRouter> m_StaticFileRouter;
+        Unique<RouterManager> m_RouterManager;
+
+        Shared<BasicRouter> m_HttpResponseRouter;
+        Shared<StaticFileRouter> m_StaticFileRouter;
         ErrorHandler m_ErrorHandler;
     };
 

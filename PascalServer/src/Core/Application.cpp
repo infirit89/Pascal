@@ -18,9 +18,14 @@ namespace Pascal
 		m_Server->SetHttpMessageCallback(
 										std::bind(&Application::OnHttpRequest, 
 										this, std::placeholders::_1));
-										
-		m_HttpResponseRouter = CreateUnique<BasicRouter>();
-		m_StaticFileRouter = CreateUnique<StaticFileRouter>();
+
+		m_HttpResponseRouter = CreateShared<BasicRouter>();
+		m_StaticFileRouter = CreateShared<StaticFileRouter>();
+
+		m_RouterManager = CreateUnique<RouterManager>();
+		m_RouterManager->AddRouter(m_HttpResponseRouter);
+		m_RouterManager->AddRouter(m_StaticFileRouter);
+
 		m_ErrorHandler = &DefaultErrorHandler;
 	}
 
@@ -40,24 +45,6 @@ namespace Pascal
 		m_EventLoop->Quit();
 	}
 
-	void Application::AddSimpleHttpResponseHandler(
-												const std::string& path,
-												const BasicRouter::ResponseCallback& callback,
-												HttpMethod allowedMethods) 
-	{
-		PS_INFO("Adding handler for route: {0}; Allowed methods: {1}", path, allowedMethods);
-		m_HttpResponseRouter->AddRoute(path, callback, allowedMethods);
-	}
-
-	void Application::AddSimpleHttpResponseHandler(
-												const std::string& path,
-												BasicRouter::ResponseCallback&& callback,
-												HttpMethod allowedMethods)
-	{
-		PS_INFO("Adding handler for route: {0}; Allowed methods: {1}", path, allowedMethods);
-		m_HttpResponseRouter->AddRoute(path, callback, allowedMethods);
-	}
-
 	void Application::MountPath(const std::filesystem::path& path) 
 	{
 		PS_INFO("Mounting path: {0}", path);
@@ -68,16 +55,25 @@ namespace Pascal
 	{
 		PS_TRACE("Routing request {0}", request);
 
-		Shared<HttpResponse> response = m_HttpResponseRouter->Route(request);
+		Router::RoutingError error;
+		Shared<HttpResponse> response = m_RouterManager->TryRoute(request, error);
 
-		if(!response) 
+		if(!response)
 		{
-			response = m_StaticFileRouter->Route(request);
-
-			if(!response) 
+			switch (error)
 			{
+			case Router::RoutingError::Forbidden:
+				PS_ERROR("Failed to route request; Request forbidden");
+				response = m_ErrorHandler(HttpStatus::Forbidden);
+				break;
+			case Router::RoutingError::MethodNotAllowed:
+				PS_ERROR("Failed to route request; Request method not allowed");
+				response = m_ErrorHandler(HttpStatus::MethodNotAllowed);
+				break;
+			case Router::RoutingError::ResourceNotFound:
 				PS_ERROR("Failed to route request; Resource not found");
 				response = m_ErrorHandler(HttpStatus::NotFound);
+				break;
 			}
 		}
 

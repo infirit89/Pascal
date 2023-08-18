@@ -68,6 +68,8 @@
         "map": "cpp",
         "optional": "cpp",
         "ranges": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp"
     }
 }

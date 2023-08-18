@@ -7,11 +7,13 @@ namespace Pascal
 {
     void HttpRequest::ParseParameters() 
     {
+        auto input = !m_Query.empty() ? m_Query : m_Body;
+
         size_t nextParameterIndex = 0;
         while(true) 
         {
-            size_t valueSeperator = m_Body.find('=', nextParameterIndex + 1);
-            std::string parameterName = m_Body.substr(
+            size_t valueSeperator = input.find('=', nextParameterIndex + 1);
+            std::string parameterName = input.substr(
                                             nextParameterIndex + (
                                                 nextParameterIndex > 0 
                                                 ? 1 
@@ -25,9 +27,9 @@ namespace Pascal
             // decode parameter name if encoded:
             parameterName = Utils::DecodeURIComponent(parameterName);
 
-            nextParameterIndex = m_Body.find('&', valueSeperator);
+            nextParameterIndex = input.find('&', valueSeperator);
 
-            std::string value = m_Body.substr(valueSeperator + 1, 
+            std::string value = input.substr(valueSeperator + 1, 
                                             nextParameterIndex - valueSeperator - 1);
 
             // decode parameter value if encoded:

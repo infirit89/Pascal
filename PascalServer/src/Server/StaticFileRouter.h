@@ -21,9 +21,10 @@ namespace Pascal
         }
 
         virtual Shared<HttpResponse> Route(
-                                    const Shared<HttpRequest>& request) override;
+                                        const Shared<HttpRequest>& request,
+                                        RoutingError& error) override;
 
-        void SetUseImplicitPage(bool useImplicitPage) 
+        void SetUseImplicitPage(bool useImplicitPage)
         { m_UseImplicitPage = useImplicitPage; }
 
         void SetImplicitPage(const std::string& implicitPage) 

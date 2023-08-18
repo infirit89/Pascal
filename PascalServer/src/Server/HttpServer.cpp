@@ -110,11 +110,6 @@ namespace Pascal
         connection->Send(responseData);
     }
 
-    void HttpServer::HandleWritePeer(Shared<Connection> connection) 
-    {
-        // PS_TRACE("i shael cum now!");
-    }
-
     void HttpServer::HandleClosePeer(Shared<Connection> connection) 
     {
         m_Connections.erase(connection);
