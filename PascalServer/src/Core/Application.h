@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Log.h"
 
 #include "EventLoop.h"
 #include "Server/StaticFileRouter.h"
@@ -51,6 +52,9 @@ namespace Pascal
         void SetErrorHandler(const ErrorHandler& errorHandler) 
         { m_ErrorHandler = errorHandler; }
 
+        void SetTest() { m_Test = 2; }
+        int GetTest() { return m_Test; } 
+
     private:
         Shared<HttpResponse> OnHttpRequest(const Shared<HttpRequest>& request);
     
@@ -64,6 +68,7 @@ namespace Pascal
         Shared<BasicRouter> m_HttpResponseRouter;
         Shared<StaticFileRouter> m_StaticFileRouter;
         ErrorHandler m_ErrorHandler;
+        int m_Test = 0;
     };
 
     

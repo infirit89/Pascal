@@ -51,7 +51,8 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Server/BasicRouter.h
         ${PROJECT_NAME}/src/Server/BasicRouter.cpp
         ${PROJECT_NAME}/src/Utils/FunctionTraits.h
-        ${PROJECT_NAME}/src/Server/HttpParameterBinder.h)
+        ${PROJECT_NAME}/src/Server/HttpParameterBinder.h
+        ${PROJECT_NAME}/src/Server/HttpController.h)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
@@ -92,7 +93,9 @@ add_executable(Sandbox
     Sandbox/src/Tests/HttpRequestParserTest.h
     Sandbox/src/Tests/HttpRequestParserTest.cpp
     Sandbox/src/Tests/HttpResponseBuilderTest.h
-    Sandbox/src/Tests/HttpResponseBuilderTest.cpp)
+    Sandbox/src/Tests/HttpResponseBuilderTest.cpp
+    Sandbox/src/Tests/TestController.h
+    Sandbox/src/Tests/TestController.cpp)
 
 add_dependencies(Sandbox PascalServer)
 

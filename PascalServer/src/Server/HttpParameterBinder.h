@@ -26,7 +26,7 @@ namespace Pascal
 
         HttpParameterBinder(Function&& function)
             : m_Function(std::forward<Function>(function))
-        {}
+        { }
 
         void PrintParamCount() 
         {
@@ -80,6 +80,41 @@ namespace Pascal
         void GetValue(double& value, std::string&& str) 
         {
             value = std::stod(str);
+        }
+
+        void GetValue(long double& value, std::string&& str) 
+        {
+            value = std::stold(str);
+        }
+
+        void GetValue(float& value, std::string&& str) 
+        {
+            value = std::stof(str);
+        }
+
+        void GetValue(std::string& value, std::string&& str) 
+        {
+            value = std::move(str);
+        }
+
+        void GetValue(long& value, std::string&& str) 
+        {
+            value = std::stol(str);
+        }
+
+        void GetValue(unsigned long& value, std::string&& str) 
+        {
+            value = std::stoul(str);
+        }
+
+        void GetValue(long long& value, std::string&& str) 
+        {
+            value = std::stoll(str);
+        }
+
+        void GetValue(unsigned long long& value, std::string&& str) 
+        {
+            value = std::stoull(str);
         }
 
         template<typename... Args>

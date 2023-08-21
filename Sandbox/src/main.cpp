@@ -125,47 +125,17 @@ Shared<HttpResponse> ErrorHandler(HttpStatus status)
 Shared<HttpResponse> TestHandleer3(const Shared<HttpRequest>& request, int test) 
 {
     Shared<HttpResponse> response = CreateShared<HttpResponse>();
-    // PS_TRACE(request->GetParamater("test"));
-
-    PS_WARN(test);
 
     return response;
 }
 
-// #include <tuple>
-// #include <deque>
-// #include <functional>
-// #include <type_traits>
-// #include "Server/HttpParameterBinder.h"
-
-// void test3(const Shared<HttpParameterBinderBase>& binder) 
-// {
-//     std::deque<std::string> params;
-//     params.push_back("21");
-//     params.push_back("2.3");
-
-//     Shared<HttpRequest> request = CreateShared<HttpRequest>();
-
-
-//     Shared<HttpResponse> response = binder->Handle(params, request);
-// }
-
-// template<typename Function>
-// void test4(Function&& function) 
-// {
-//     auto binder = CreateShared<HttpParameterBinder<Function>>(std::forward<Function>(function));
-//     test3(binder);
-// }
-
 int main() 
 {
-    // test4(&TestHandleer3);
     std::thread t([]() 
     {
         App().MountPath("Assets/");
+        PS_TRACE(App().GetTest());
         App().SetErrorHandler(ErrorHandler);
-        // App().AddSimpleHttpResponseHandler("/", TestHandler);
-        // App().AddSimpleHttpResponseHandler("/app.js", JSHandler);
         App().AddSimpleHttpResponseHandler("/test", &TestHandleer2, HttpMethod::Post);
         App().AddSimpleHttpResponseHandler("/test5?test={number}", &TestHandleer3);
         App().Run();
