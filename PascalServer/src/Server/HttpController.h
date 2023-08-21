@@ -2,15 +2,29 @@
 
 #include "Core/Application.h"
 
-// #define SET_TEST_BEGIN \
-//     static void InitTest() \
-//     {
+#define PS_BEGIN_METHOD_LIST \
+    static void InitMethods() \
+    {
 
-// #define SET_TEST() \
-//     SetTest()
+#define PS_REGISTER_METHOD(path, callback, allowedMethods) \
+    Pascal::App().AddSimpleHttpResponseHandler(path, &callback, allowedMethods);
 
-// #define SET_TEST_END \
-//     }
+#define PS_REGISTER_METHOD_G(path, callback) \
+    Pascal::App().AddSimpleHttpResponseHandler(path, &callback, Pascal::HttpMethod::Get);
+
+#define PS_REGISTER_METHOD_P(path, callback) \
+    Pascal::App().AddSimpleHttpResponseHandler(path, &callback, Pascal::HttpMethod::Post);
+
+#define PS_REGISTER_METHOD_U(path, callback) \
+    Pascal::App().AddSimpleHttpResponseHandler(path, &callback, Pascal::HttpMethod::Put);
+
+#define PS_REGISTER_METHOD_D(path, callback) \
+    Pascal::App().AddSimpleHttpResponseHandler(path, &callback, Pascal::HttpMethod::Delete);
+
+
+#define PS_END_METHOD_LIST \
+    return; \
+    }
 
 namespace Pascal 
 {
@@ -22,17 +36,13 @@ namespace Pascal
         HttpController() = default;
         virtual ~HttpController() = default;
 
-        static void SetTest() 
-        {
-            App().SetTest();
-        }
     private:
         class Registrator
         {
         public:
             Registrator() 
             {
-                T::InitTest();
+                T::InitMethods();
             }
         };
 

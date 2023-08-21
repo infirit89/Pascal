@@ -4,23 +4,22 @@
 
 namespace UnitTests 
 {
-    class TestController : public Pascal::HttpController<TestController> 
+    class TestController : public Pascal::HttpController<TestController>
     {
     public:
         TestController() 
         {
 
         }
-        
-        static void InitTest() 
-        {
-            SetTest();
-            return;
-        }
 
+        Pascal::Shared<Pascal::HttpResponse> TestHandler(
+                                                const Pascal::Shared<Pascal::HttpRequest>& request,
+                                                int test);
 
-        // void Test();
+        PS_BEGIN_METHOD_LIST
+        PS_REGISTER_METHOD_G("/test5?test={number}", 
+                            TestController::TestHandler)
 
-        // virtual void TestTest() override;
+        PS_END_METHOD_LIST
     };
-} 
+}

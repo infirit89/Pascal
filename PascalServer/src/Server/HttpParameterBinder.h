@@ -6,6 +6,7 @@
 
 #include <deque>
 
+// a garbled mess
 namespace Pascal 
 {
     class HttpParameterBinderBase 
@@ -17,6 +18,13 @@ namespace Pascal
 
         virtual ~HttpParameterBinderBase() { }
     };
+
+    template<typename T>
+    T& InitController()
+    {
+        static T controller;
+        return controller;
+    }
 
     template<typename Function>
     class HttpParameterBinder : public HttpParameterBinderBase
@@ -117,6 +125,12 @@ namespace Pascal
             value = std::stoull(str);
         }
 
+        /*
+        this is enabled if the parsed parameters + 1 
+        (cause the response callback should always have a http request 
+        as a first parameter) 
+        is less than the response callback's argument count
+        */
         template<typename... Args>
         std::enable_if_t<sizeof...(Args) + 1 < param_count,
                         Shared<HttpResponse>> 
@@ -158,6 +172,12 @@ namespace Pascal
             return response;
         }
 
+        /*
+        this is enabled if the parsed parameters + 1 
+        (cause the response callback should always have a http request 
+        as a first parameter) 
+        is equal to the response callback's argument count
+        */
         template<typename... Args>
         std::enable_if_t<sizeof...(Args) + 1 == param_count,
                         Shared<HttpResponse>>
@@ -167,7 +187,32 @@ namespace Pascal
                 Args&&... arguments) 
         {   
             // PS_TRACE("run: arg count equal to function arg count");
+            return RunCallback(request, std::move(arguments)...);
+        }
+
+        // this is enabled if the response callback is just a function
+        template<typename... Args, 
+                typename ClassType = typename traits::ClassType>
+        std::enable_if_t<std::is_same_v<ClassType, void>, 
+                        Shared<HttpResponse>>
+            RunCallback(
+                    const Shared<HttpRequest>& request,
+                    Args&&... arguments) 
+        {
             return m_Function(request, std::move(arguments)...);
+        }
+
+        // this is enabled if the response callback is inside a class
+        template<typename... Args, 
+                typename ClassType = typename traits::ClassType>
+        std::enable_if_t<!std::is_same<ClassType, void>::value, 
+                        Shared<HttpResponse>>
+            RunCallback(
+                    const Shared<HttpRequest>& request,
+                    Args&&... arguments) 
+        {
+            static ClassType& controller = InitController<ClassType>();
+            return (controller.*m_Function)(request, std::move(arguments)...);
         }
     };
 }

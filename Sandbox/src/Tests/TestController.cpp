@@ -1,11 +1,17 @@
 #include "TestController.h"
 
-namespace UnitTests
+
+namespace UnitTests 
 {
-    // void TestController::Test() 
-    // {
+    using namespace Pascal;
 
-    // }
+    Shared<HttpResponse> TestController::TestHandler(
+                                                const Shared<HttpRequest>& request,
+                                                int test) 
+    {
+        Shared<HttpResponse> response = CreateShared<HttpResponse>();
+        PS_WARN(test);
 
-    // void TestController::TestTest() { }
+        return response;
+    }
 }

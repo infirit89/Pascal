@@ -12,6 +12,7 @@
 #include "Tests/INetAddressTest.h"
 #include "Tests/HttpRequestParserTest.h"
 #include "Tests/HttpResponseBuilderTest.h"
+#include "Tests/TestController.h"
 
 #include <vector>
 #include <fstream>
@@ -134,10 +135,9 @@ int main()
     std::thread t([]() 
     {
         App().MountPath("Assets/");
-        PS_TRACE(App().GetTest());
         App().SetErrorHandler(ErrorHandler);
         App().AddSimpleHttpResponseHandler("/test", &TestHandleer2, HttpMethod::Post);
-        App().AddSimpleHttpResponseHandler("/test5?test={number}", &TestHandleer3);
+        // App().AddSimpleHttpResponseHandler("/test5?test={number}", &UnitTests::TestController::TestHandler);
         App().Run();
     });
 
