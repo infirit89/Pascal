@@ -7,6 +7,8 @@
 
 namespace Pascal 
 {
+    // TODO: change uint32s to size_ts
+
     // TODO: make it templated?
     class Buffer 
     {
@@ -86,6 +88,9 @@ namespace Pascal
 
         uint32_t GetSize() const { return m_Size; }
         uint32_t GetCapacity() const { return m_Capacity; }
+        uint32_t GetHead() const { return m_Head; }
+        uint32_t GetReadableSize() const { return m_Size - m_Head; }
+        uint32_t GetWriteableSize() const { return m_Capacity - m_Size; }
 
     private:
         char* m_Data = nullptr;

@@ -26,11 +26,15 @@ namespace Pascal
 
         PS_TRACE(messageBuffer);
 
+        // hey boss for some reason it doesn;'t find a space when https
+
         // try parse the request method:
         const char* methodSeperator = std::find(
                                         messageBuffer.Peek(),
                                         (const char*)messageBuffer.GetWritable(),
                                         ' ');
+        
+        PS_TRACE(methodSeperator);
 
         if(methodSeperator == messageBuffer.GetWritable())
         {
@@ -58,10 +62,17 @@ namespace Pascal
         messageBuffer.Advance(method.size() + 1);
 
         // try parse the request path:
-        const char* pathSeperator = std::find(
+
+        // find the space before the http version
+        const char* space = std::find(
                                     messageBuffer.Peek(),
                                     (const char*)messageBuffer.GetWritable(),
                                     ' ');
+
+        const char* pathSeperator = std::find(
+                                    messageBuffer.Peek(),
+                                    (const char*)messageBuffer.GetWritable(),
+                                    '/');
 
         if(pathSeperator == messageBuffer.GetWritable())
         {
@@ -71,22 +82,19 @@ namespace Pascal
 
         const char* querySeperator = std::find(
                                             messageBuffer.Peek(),
-                                            pathSeperator,
+                                            space,
                                             '?');
 
-        if(querySeperator != pathSeperator) 
+        if(querySeperator != space) 
         {
-            request->m_Query = std::string(querySeperator + 1, pathSeperator);
-            
-            request->m_Target = std::string(
-                                        messageBuffer.Peek(), 
-                                        pathSeperator - querySeperator - 1);
+            request->m_Query = std::string(querySeperator + 1, space);
+            request->m_Target = std::string(pathSeperator, querySeperator);
         }
         else 
         {
             request->m_Target = std::string(
-                                        messageBuffer.Peek(), 
-                                        pathSeperator);
+                                        pathSeperator, 
+                                        space);
         }
 
 
@@ -97,7 +105,7 @@ namespace Pascal
         }
         // --------------------------------
 
-        messageBuffer.Advance(pathSeperator - messageBuffer.Peek() + 1);
+        messageBuffer.Advance(space - messageBuffer.Peek() + 1);
 
         // try parse the request version:
         const char* eol = FindCRLF(messageBuffer);

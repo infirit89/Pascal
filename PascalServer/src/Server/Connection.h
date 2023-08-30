@@ -8,8 +8,12 @@
 #include <functional>
 #include <memory>
 
+#include <openssl/ssl.h>
+
 namespace Pascal 
-{
+{    
+    // NOTE: bad bad bad; every bit of opeenssl code should be removed 
+    // from this class and put into its own unit
 
     class Connection : public std::enable_shared_from_this<Connection>
     {
@@ -22,7 +26,7 @@ namespace Pascal
         using CloseCallback = std::function<void(Shared<Connection>)>;
 
 
-        Connection(const Shared<EventLoop>& eventLoop, ps_socket socketHandle);
+        Connection(const Shared<EventLoop>& eventLoop, ps_socket socketHandle, SSL_CTX* context);
         ~Connection();
 
         void SetReadCallback(const RecieveMessageCallback& callback) 
@@ -55,6 +59,10 @@ namespace Pascal
         void HandleWrite();
         void HandleError();
         void HandleRead();
+        bool AcceptSSL();
+        void ProccessSSLData();
+        void WriteRaw(const char* data, uint32_t size);
+        void SendTLSData();
 
         Shared<EventLoop> m_EventLoop;
         Socket m_Socket;
@@ -63,5 +71,7 @@ namespace Pascal
         RecieveMessageCallback m_RecieveMessageCallback;
         WriteCallback m_WriteCallback;
         CloseCallback m_CloseCallback;
+        SSL* m_SSL;
+        BIO* m_ReadBio, * m_WriteBio;
     };
 }

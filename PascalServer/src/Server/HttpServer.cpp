@@ -6,6 +6,10 @@
 
 #include <iostream>
 
+#include <openssl/err.h>
+#include <openssl/pem.h>
+#include <openssl/bio.h>
+
 namespace Pascal 
 {
     const char* response = "HTTP/1.1 200 OK\r\n";
@@ -32,12 +36,38 @@ namespace Pascal
 
         m_ListenerEvent->EnableReading();
         m_EventLoop->AddEventDescription(m_ListenerEvent.get());
+
+        SSL_library_init();
+        OpenSSL_add_all_algorithms();
+        SSL_load_error_strings();
+        ERR_load_BIO_strings();
+        ERR_load_crypto_strings();
+
+        m_Context = SSL_CTX_new(TLS_server_method());
+
+        int ret = SSL_CTX_use_certificate_file(
+                                            m_Context,
+                                            "Assets/localhost.crt",
+                                            SSL_FILETYPE_PEM);
+
+        PS_ASSERT(ret == 1, "Couldn't load the certificate file");
+
+        ret = SSL_CTX_use_PrivateKey_file(
+                                            m_Context,
+                                            "Assets/localhost.decrypted.key",
+                                            SSL_FILETYPE_PEM);
+
+        PS_ASSERT(ret == 1, "Couldn't load the private key file");
+
+        ret = SSL_CTX_check_private_key(m_Context);
+        PS_ASSERT(ret == 1, "Private key doesn't match");
     }
 
     HttpServer::~HttpServer()
     {
         m_EventLoop.reset();
         m_ListenerEvent.reset();
+        SSL_CTX_free(m_Context);
     }
 
     void HttpServer::HandleAccept() 
@@ -50,7 +80,8 @@ namespace Pascal
         std::shared_ptr<Connection> connection =
                                     std::make_shared<Connection>(
                                                                 m_EventLoop, 
-                                                                clientHandle);
+                                                                clientHandle,
+                                                                m_Context);
 
         connection->SetReadCallback(
                                 std::bind(

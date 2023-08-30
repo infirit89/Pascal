@@ -54,10 +54,14 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Server/HttpParameterBinder.h
         ${PROJECT_NAME}/src/Server/HttpController.h)
 
+find_package(OpenSSL REQUIRED)
+
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
         PascalServer/vendor/spdlog/include
         PascalServer/vendor/nlohmann)
+
+target_link_libraries(PascalServer PRIVATE OpenSSL::SSL)
 
 target_compile_options(PascalServer PRIVATE
     $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:-m64>

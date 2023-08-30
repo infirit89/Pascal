@@ -14,6 +14,8 @@
 #include <set>
 #include <functional>
 
+#include <openssl/ssl.h>
+
 namespace Pascal 
 {
     class HttpServer 
@@ -50,5 +52,6 @@ namespace Pascal
         std::string m_RecvStr;
         std::set<std::shared_ptr<Connection>> m_Connections;
         HttpRequestCallback m_OnHttpRequest;
+        SSL_CTX* m_Context;
     };
 }
