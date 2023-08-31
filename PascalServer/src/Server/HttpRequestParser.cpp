@@ -26,9 +26,12 @@ namespace Pascal
 
         PS_TRACE(messageBuffer);
 
-        // hey boss for some reason it doesn;'t find a space when https
+        // TODO: hey boss for some reason it doesn;'t find a space when https
 
         // try parse the request method:
+        std::string buffer = std::string(messageBuffer.Peek(), (const char*)messageBuffer.GetWritable());
+        PS_TRACE(buffer);
+
         const char* methodSeperator = std::find(
                                         messageBuffer.Peek(),
                                         (const char*)messageBuffer.GetWritable(),

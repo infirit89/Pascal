@@ -136,10 +136,15 @@ namespace Pascal
 
             if(n <= 0) 
             {
-                PS_ERROR("ssl read error  i cum");
+                int error = SSL_get_error(m_SSL, n);
+                PS_ERROR(error);
+                PS_ERROR(ERR_error_string(ERR_get_error(), NULL));
+                return;
             }
             else 
             {
+                m_MessageBuffer.m_Size += n;
+
                 if(m_RecieveMessageCallback)
                     m_RecieveMessageCallback(shared_from_this(), m_MessageBuffer);
             }

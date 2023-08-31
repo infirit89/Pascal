@@ -24,7 +24,7 @@ class TestParams
 function Test()
 {
     const http = new XMLHttpRequest();
-    const url = 'http://localhost:8080/test';
+    const url = 'https://localhost:4000/test';
     const queryBuilder = new RequestQueryBuilder();
 
     const testParams = new TestParams();

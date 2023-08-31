@@ -21,7 +21,7 @@ namespace Pascal
         m_ListenerSocket.SetReuseAddress(true);
         m_ListenerSocket.SetReusePort(true);
 
-        INetAddress address(8080);
+        INetAddress address(4000);
         m_ListenerSocket.Bind(address);
 
         m_ListenerEvent = CreateShared<Event>(m_ListenerSocket.GetHandle());
@@ -47,14 +47,14 @@ namespace Pascal
 
         int ret = SSL_CTX_use_certificate_file(
                                             m_Context,
-                                            "Assets/localhost.crt",
+                                            "Assets/localhost+3.pem",
                                             SSL_FILETYPE_PEM);
 
         PS_ASSERT(ret == 1, "Couldn't load the certificate file");
 
         ret = SSL_CTX_use_PrivateKey_file(
                                             m_Context,
-                                            "Assets/localhost.decrypted.key",
+                                            "Assets/localhost+3-key.pem",
                                             SSL_FILETYPE_PEM);
 
         PS_ASSERT(ret == 1, "Couldn't load the private key file");
