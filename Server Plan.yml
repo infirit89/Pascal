@@ -1,24 +1,61 @@
 Internal Server Plan:
 
+    [Done]
     Socket:
         constructor:    createas a non blocking Socket
         bind:           binds the socket to an address and port specified by user
         listen:         starts listening on the socket
     
+    [Done]
     INetAddress:        utility class for translating from string address
 
+    [Done]
     Connection:
         read:           read from a connection
         write:          write to a connection
 
+    [Done]
     Server:
         constructor:    creates a listener socket
         start:          starts listening
         onConnection:   a callback that gets called when a new connection comes in
         onReceive:      a callback that gets called when a message is received
 
+    [Done]
+    EventLoop:
+        AddEvent:       adds an event description to the internal poller
+        RemoveEvent:    removes an event description from the internal poller
+        Run:            Polls and returns a list of active events
 
+    [Done]
     Poller:
       Poll:             waits for events to occur
       AddEvent:         registers a new handle that needs to be polled (AddEvent is a bad name; needs to change)
       RemoveEvent:      removes a handle that needs to be polled
+
+    [Done]
+    Buffer:
+        Write:          writes data to the buffer
+        Read:           reads data from the buffer
+        Begin:          the beginig of the writable area
+
+    [Done]
+    HttpRequest:            a class containing the processed request data
+
+    [Kinda (still have to do error handling)]
+    HttpRequestParser:      parses a raw request data to an http request object
+
+    [Done]
+    HttpResponse:           a class that represents a response
+
+    [Done]
+    HttpResponseBuilder:    builds a raw response from a response object
+
+    [Done]
+    Router (Basic):         maps a  request target to a callback (won't support query parameters)
+
+    [Done]
+    Router (StaticFiles):   router for static files
+
+    [TODO (Maybe)]
+    The posibility of imbeding server data into a html file

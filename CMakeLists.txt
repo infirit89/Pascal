@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22.1)
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
@@ -26,11 +26,42 @@ add_library(PascalServer
         ${PROJECT_NAME}/src/Network/Socket.h
         ${PROJECT_NAME}/src/Network/Socket.cpp
         ${PROJECT_NAME}/src/Network/INetAddress.h
-        ${PROJECT_NAME}/src/Network/INetAddress.cpp)
+        ${PROJECT_NAME}/src/Network/INetAddress.cpp
+        ${PROJECT_NAME}/src/Core/EventLoop.h
+        ${PROJECT_NAME}/src/Core/EventLoop.cpp
+        ${PROJECT_NAME}/src/Server/Connection.h
+        ${PROJECT_NAME}/src/Server/Connection.cpp
+        ${PROJECT_NAME}/src/Core/Buffer.h
+        ${PROJECT_NAME}/src/Core/Buffer.cpp
+        ${PROJECT_NAME}/src/Server/HttpTypes.h
+        ${PROJECT_NAME}/src/Server/HttpTypes.cpp
+        ${PROJECT_NAME}/src/Server/HttpRequest.h
+        ${PROJECT_NAME}/src/Server/HttpRequest.cpp
+        ${PROJECT_NAME}/src/Server/HttpRequestParser.h
+        ${PROJECT_NAME}/src/Server/HttpRequestParser.cpp
+        ${PROJECT_NAME}/src/Server/Router.h
+        ${PROJECT_NAME}/src/Server/Router.cpp
+        ${PROJECT_NAME}/src/Server/HttpResponse.h
+        ${PROJECT_NAME}/src/Server/HttpResponseBuilder.h
+        ${PROJECT_NAME}/src/Server/HttpResponseBuilder.cpp
+        ${PROJECT_NAME}/src/Server/StaticFileRouter.h
+        ${PROJECT_NAME}/src/Server/StaticFileRouter.cpp
+        ${PROJECT_NAME}/src/Utils/Utils.h
+        ${PROJECT_NAME}/src/Utils/Utils.cpp
+        ${PROJECT_NAME}/src/Server/BasicRouter.h
+        ${PROJECT_NAME}/src/Server/BasicRouter.cpp
+        ${PROJECT_NAME}/src/Utils/FunctionTraits.h
+        ${PROJECT_NAME}/src/Server/HttpParameterBinder.h
+        ${PROJECT_NAME}/src/Server/HttpController.h)
+
+find_package(OpenSSL REQUIRED)
 
 target_include_directories(PascalServer PRIVATE
         PascalServer/src
-        PascalServer/vendor/spdlog/include)
+        PascalServer/vendor/spdlog/include
+        PascalServer/vendor/nlohmann)
+
+target_link_libraries(PascalServer PRIVATE OpenSSL::SSL)
 
 target_compile_options(PascalServer PRIVATE
     $<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:C>>:-m64>
@@ -61,14 +92,22 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(Sandbox 
     Sandbox/src/main.cpp
     Sandbox/src/Tests/TestUtils.h
-    Sandbox/src/Tests/INetAddressTest.h)
+    Sandbox/src/Tests/TestUtils.cpp
+    Sandbox/src/Tests/INetAddressTest.h
+    Sandbox/src/Tests/HttpRequestParserTest.h
+    Sandbox/src/Tests/HttpRequestParserTest.cpp
+    Sandbox/src/Tests/HttpResponseBuilderTest.h
+    Sandbox/src/Tests/HttpResponseBuilderTest.cpp
+    Sandbox/src/Tests/TestController.h
+    Sandbox/src/Tests/TestController.cpp)
 
 add_dependencies(Sandbox PascalServer)
 
 target_include_directories(Sandbox PRIVATE
         Sandbox/src
         PascalServer/src
-        PascalServer/vendor/spdlog/include)
+        PascalServer/vendor/spdlog/include
+        PascalServer/vendor/nlohmann)
 
 target_link_libraries(Sandbox PascalServer)
 

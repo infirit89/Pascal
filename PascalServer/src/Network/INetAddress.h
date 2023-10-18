@@ -10,20 +10,24 @@ namespace Pascal
     class INetAddress 
     {
     public:
+        INetAddress();
         INetAddress(std::string address, uint16_t port, bool ipv6 = false);
         INetAddress(uint16_t port, bool loopback = false, bool ipv6 = false);
+        INetAddress(sockaddr_in6 addrin);
 
         ~INetAddress() { }
 
         const sockaddr* GetSocketAddress() const 
         {
-            return (const sockaddr*)(&m_AddressIP6);
+            return static_cast<const sockaddr*>((void*)(&m_AddressIP6));
         }
 
         uint16_t GetAddressFamily() { return m_AddressIP4.sin_family; }
 
         std::string GetIp() const;
         uint16_t GetPort() const;
+
+        bool IsIPV6() const { return m_IsIPV6; }
 
     private:
         union 

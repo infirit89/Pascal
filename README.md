@@ -1,2 +1,2 @@
 # Pascal
-a c++ version of the basic and fucking dumb c server i created
+This is a c++ web server framework. It is a continuation of the web server I did in C.

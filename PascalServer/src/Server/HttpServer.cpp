@@ -1,131 +1,153 @@
 #include "pspch.h"
 #include "HttpServer.h"
 
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include "HttpRequestParser.h"
+#include "HttpResponseBuilder.h"
+
+#include <iostream>
+
+#include <openssl/err.h>
+#include <openssl/pem.h>
+#include <openssl/bio.h>
 
 namespace Pascal 
 {
     const char* response = "HTTP/1.1 200 OK\r\n";
 
-    static void SetNonBlocking(ps_socket socket) 
+    HttpServer::HttpServer(const Shared<EventLoop>& eventLoop)
+        : m_ListenerSocket(Socket::CreateSocketNonBlocking(AF_INET)),
+          m_EventLoop(eventLoop)
     {
-        int settings = fcntl(socket, F_GETFL);
-        settings = settings | O_NONBLOCK;
+        m_ListenerSocket.SetReuseAddress(true);
+        m_ListenerSocket.SetReusePort(true);
 
-        fcntl(socket, F_SETFL, settings);
+        INetAddress address(4000);
+        m_ListenerSocket.Bind(address);
+
+        m_ListenerEvent = CreateShared<Event>(m_ListenerSocket.GetHandle());
+        m_ListenerEvent->SetReadCallback(
+                                        std::bind(
+                                                &HttpServer::HandleAccept, 
+                                                this));
+
+        m_RecvStr.resize(PS_HTTP_REQUEST_INITIAL_SIZE * 2);
+
+        m_ListenerSocket.Listen();
+
+        m_ListenerEvent->EnableReading();
+        m_EventLoop->AddEventDescription(m_ListenerEvent.get());
+
+        SSL_library_init();
+        OpenSSL_add_all_algorithms();
+        SSL_load_error_strings();
+        ERR_load_BIO_strings();
+        ERR_load_crypto_strings();
+
+        m_Context = SSL_CTX_new(TLS_server_method());
+
+        int ret = SSL_CTX_use_certificate_file(
+                                            m_Context,
+                                            "Assets/localhost+3.pem",
+                                            SSL_FILETYPE_PEM);
+
+        PS_ASSERT(ret == 1, "Couldn't load the certificate file");
+
+        ret = SSL_CTX_use_PrivateKey_file(
+                                            m_Context,
+                                            "Assets/localhost+3-key.pem",
+                                            SSL_FILETYPE_PEM);
+
+        PS_ASSERT(ret == 1, "Couldn't load the private key file");
+
+        ret = SSL_CTX_check_private_key(m_Context);
+        PS_ASSERT(ret == 1, "Private key doesn't match");
     }
 
-    HttpServer::HttpServer() 
+    HttpServer::~HttpServer()
     {
-        m_Poller = Poller::CreatePoller();
+        m_EventLoop.reset();
+        m_ListenerEvent.reset();
+        SSL_CTX_free(m_Context);
+    }
 
-        m_ListenerSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        if(m_ListenerSocket == PS_INVALID_SOCKET)
-            PS_ERROR("i cum");
+    void HttpServer::HandleAccept() 
+    {
+        INetAddress clientAddress;
+        ps_socket clientHandle = m_ListenerSocket.Accept(clientAddress);
 
-        SetNonBlocking(m_ListenerSocket);
+        PS_ASSERT(clientHandle != PS_INVALID_SOCKET, "Couldn't accept a valid client");
 
-        PS_ASSERT(m_ListenerSocket != PS_INVALID_SOCKET, "Couldn't create tcp socket");
+        std::shared_ptr<Connection> connection =
+                                    std::make_shared<Connection>(
+                                                                m_EventLoop, 
+                                                                clientHandle,
+                                                                m_Context);
 
-        sockaddr_in addr;
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(8080);
+        connection->SetReadCallback(
+                                std::bind(
+                                        &HttpServer::HandleReadPeer,
+                                        this,
+                                        std::placeholders::_1,
+                                        std::placeholders::_2));
 
-        addr.sin_addr.s_addr = INADDR_ANY;
+        connection->SetCloseCallback(
+                                std::bind(
+                                    &HttpServer::HandleClosePeer,
+                                    this,
+                                    std::placeholders::_1));
 
-        if(bind(m_ListenerSocket, (sockaddr*)&addr, sizeof(sockaddr)) == -1) 
+        m_Connections.insert(connection);
+
+        connection->EstablishConnection();
+    }
+
+    void HttpServer::HandleReadPeer(Shared<Connection> connection, Buffer& buffer) 
+    {
+        HttpRequestParser::Status status;
+        PS_TRACE(buffer);
+
+        Shared<HttpRequest> request = HttpRequestParser::ParseRequest(buffer, status);
+
+        Shared<HttpResponse> response;
+
+        switch(status) 
         {
-            CloseListenerSocket();
-            PS_ASSERT(false, "Couldn't bind socket");
+        case HttpRequestParser::Status::Success:
+            response = m_OnHttpRequest(request);
+            break;
+        case HttpRequestParser::Status::IllformedRequest:
+            response = CreateShared<HttpResponse>(HttpStatus::BadRequest);
+            break;
+        case HttpRequestParser::Status::HttpVersionNotSupported:
+            response = CreateShared<HttpResponse>(HttpStatus::VersionNotSupported);
+            break;
+        case HttpRequestParser::Status::UnexpectedMethod:
+            response = CreateShared<HttpResponse>(HttpStatus::MethodNotAllowed);
+            break;
+        case HttpRequestParser::Status::URITooLong:
+            response = CreateShared<HttpResponse>(HttpStatus::UriTooLong);
+            break;
         }
 
-        m_EventDescription = CreateShared<EventDescription>(m_ListenerSocket);
+        SendResponse(connection, response);
+    }
+    
+    void HttpServer::SendResponse(
+                                const Shared<Connection>& connection,
+                                const Shared<HttpResponse>& response) 
+    {
+        std::string responseData = HttpResponseBuilder::BuildResponse(response);
+
+        connection->Send(responseData);
     }
 
-    HttpServer::~HttpServer() 
+    void HttpServer::HandleClosePeer(Shared<Connection> connection) 
     {
-        CloseListenerSocket();
-    }  
-
-    void HttpServer::CloseListenerSocket() 
-    {
-        close(m_ListenerSocket);
+        m_Connections.erase(connection);
     }
 
     void HttpServer::Run() 
     {
-        if(listen(m_ListenerSocket, 16) == -1) 
-        {
-            CloseListenerSocket();
-            PS_ASSERT(false, "Couldn't bind socket");
-        }
-
-        m_EventDescription->EnableReading();
-        m_Poller->AddEventDescription(m_EventDescription.get());
-
-        // epoll_event ev;
-        // ev.events = EPOLLIN | EPOLLET;
-        // ev.data.fd = m_ListenerSocket;
-
-        // epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, m_ListenerSocket, &ev);
-
-        std::string recvStr;
-        recvStr.resize(PS_HTTP_REQUEST_INITIAL_SIZE * 2);
-
-        // std::vector<epoll_event> events;
-        // events.resize(10);
-
-        while(true)
-        {
-            std::vector<EventDescription*> events;
-
-            m_Poller->Poll(events, -1);
-
-            for(auto event : events) 
-            {
-                if(event->GetEventHandle() == m_ListenerSocket) 
-                {
-                    ps_socket client = accept(m_ListenerSocket, NULL, NULL);
-
-                    recv(client, &recvStr[0], recvStr.capacity(), 0);
-
-                    PS_TRACE(recvStr);
-
-                    send(client, response, strlen(response), 0);
-
-                    close(client);
-                }
-            }
-
-            // int handles = epoll_wait(m_EpollFD, &events[0], events.capacity(), -1);
-
-            // for(auto event : events)
-            // {
-            //     if(event.data.fd == m_ListenerSocket) 
-            //     {
-            //         ps_socket client = accept(event.data.fd, NULL, NULL);
-            //         SetNonBlocking(client);
-
-            //         ev.events = EPOLLIN | EPOLLET;
-            //         ev.data.fd = client;
-
-            //         epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, client, &ev);
-            //     }
-            //     else 
-            //     {
-            //         ps_socket client = event.data.fd;
-            //         recv(client, &recvStr[0], recvStr.capacity(), 0);
-
-            //         PS_TRACE(recvStr);
-
-            //         send(client, response, strlen(response), 0);
-
-            //         epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, client, &event);
-            //         close(client);    
-            //     }
-            // }
-        }
+        m_EventLoop->Run();
     }
 }

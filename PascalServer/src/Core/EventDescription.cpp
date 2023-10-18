@@ -5,12 +5,40 @@
 
 namespace Pascal 
 {
-    int EventDescription::s_ReadEvent = POLLIN | POLLPRI;
+    int Event::s_ReadEvent = POLLIN | POLLPRI;
+    int Event::s_WriteEvent = POLLOUT;
 
-    EventDescription::EventDescription(int eventHandle) 
+    Event::Event(int eventHandle) 
         : m_EventHandle(eventHandle)
     { }
 
     
-    EventDescription::~EventDescription() { }
+    Event::~Event() { }
+
+    void Event::HandleEvents() 
+    {
+        if(m_ReturnedEventMask & (POLLNVAL | POLLERR)) 
+        {
+            if(m_ErrorCallback)
+                m_ErrorCallback();
+        }
+
+        if((m_ReturnedEventMask & POLLHUP) && !(m_ReturnedEventMask & POLLIN))
+        {
+            if(m_CloseCallback)
+                m_CloseCallback();
+        }
+
+        if(m_ReturnedEventMask & (POLLIN | POLLPRI | POLLRDHUP)) 
+        {
+            if(m_ReadCallback)
+                m_ReadCallback();
+        }
+
+        if(m_ReturnedEventMask & (POLLOUT)) 
+        {
+            if(m_WriteCallback)
+                m_WriteCallback();
+        }
+    }
 }

@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${workspaceFolder}/build/Sandbox",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/Sandbox",
             "terminal": "external"
             // "terminal": "external"
         }

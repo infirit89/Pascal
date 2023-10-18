@@ -10,15 +10,15 @@ namespace Pascal
     class Poller 
     {
     public:
-        using EventDescriptionList = std::vector<EventDescription*>;
+        using EventList = std::vector<Event*>;
 
         static Unique<Poller> CreatePoller();
 
         Poller() { }
         virtual ~Poller() {}
 
-        virtual void Poll(EventDescriptionList& eventDescriptions, int timeout) = 0;
-        virtual void AddEventDescription(EventDescription* eventDescription) = 0;
-        virtual void RemoveEventDescription(EventDescription* eventDesription) = 0;
+        virtual void Poll(EventList& eventDescriptions, int timeout) = 0;
+        virtual void AddEventDescription(Event* eventDescription) = 0;
+        virtual void RemoveEventDescription(Event* eventDesription) = 0;
     };
 }

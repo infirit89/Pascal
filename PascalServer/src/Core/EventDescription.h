@@ -4,13 +4,13 @@
 
 namespace Pascal 
 {
-    class EventDescription 
+    class Event 
     {
     public:
         using EventCallback = std::function<void()>;
 
-        EventDescription(int eventHandle);
-        ~EventDescription();
+        Event(int eventHandle);
+        ~Event();
 
         void SetReadCallback(const EventCallback& callback) 
         {
@@ -22,6 +22,16 @@ namespace Pascal
             m_CloseCallback = callback;
         }
 
+        void SetErrorCallback(const EventCallback& callback) 
+        {
+            m_ErrorCallback = callback;
+        }
+
+        void SetWriteCallback(const EventCallback& callback) 
+        {
+            m_WriteCallback = callback;
+        }
+
         int GetEventHandle() const { return m_EventHandle; } 
 
         int GetEventMask() const { return m_EventMask; }
@@ -31,12 +41,34 @@ namespace Pascal
             m_EventMask |= s_ReadEvent;
         }
 
+        void EnableWriting() 
+        {
+            m_EventMask |= s_WriteEvent;
+        }
+
+        void HandleEvents();
+
     private:
         static int s_ReadEvent; 
+        static int s_WriteEvent;
+
+        void SetReturnedEventMask(int mask) 
+        {
+            m_ReturnedEventMask = mask;
+        }
 
         EventCallback m_ReadCallback;
         EventCallback m_CloseCallback;
+        EventCallback m_ErrorCallback;
+        EventCallback m_WriteCallback;
+
         int m_EventHandle;
         int m_EventMask;
+
+        // the event mask from the polled event
+        int m_ReturnedEventMask;
+
+        friend class Poller;
+        friend class EPollPoller;
     };
 }
